@@ -1,5 +1,11 @@
 # Changelog
 
+## Server 0.3.2
+
+- Show the Nook battery percentage in the top-right corner of the first line.
+- Read the existing client battery header; no APK update required.
+- Refresh the cached image when the reported percentage changes; display `--` if unavailable.
+
 ## Server 0.3.1 / client 0.2.2 — English edition
 
 - Translate all project documentation, app metadata and installation messages into English.

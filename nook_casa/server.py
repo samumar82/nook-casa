@@ -95,7 +95,8 @@ def render(data, now, interval):
         d.text((round(x), round(y)), value, font=f, fill=0)
     def line(y): d.line((24, y, 576, y), fill=0, width=2)
     def section(y, title): text(24, y, title, 18, True)
-    text(24, 12, "THE HOME NEWSPAPER", 30, True)
+    text(24, 12, "THE HOME NEWSPAPER", 27, True, 474)
+    aligned((508, 12, 576, 46), num(data.get("nook_battery"), 0, "%"), 15, True, True)
     weekdays_long = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     date_label = f"{weekdays_long[now.weekday()]} {now.day} {months[now.month-1]} {now.year}  ·  {now:%H:%M}"
@@ -229,6 +230,7 @@ class Bridge:
         self.revision = ""
         self.updated = 0
         self.last_contact = None
+        self.nook_battery = None
         self.command_lock = threading.Lock()
         self.requests = {}
         self.token = os.environ.get("SUPERVISOR_TOKEN", "")
@@ -290,7 +292,8 @@ class Bridge:
         with self.lock:
             if self.image and time.time()-self.updated < 45: return
             now = datetime.now(TZ)
-            data = self.collect(now)
+            data = dict(self.collect(now))
+            data["nook_battery"] = self.nook_battery
             self.image = render(data, now, refresh_interval(now))
             self.revision = hashlib.sha256(self.image).hexdigest()[:20]
             self.updated = time.time()
@@ -371,6 +374,14 @@ class Handler(BaseHTTPRequestHandler):
                     and self.headers.get("ID") == b.options["device_id"]):
                 return self.send(401, {"error":"unauthorized"})
             b.last_contact = datetime.now(TZ).isoformat()
+            raw_battery = self.headers.get("Percent-Charged", "").strip()
+            battery = int(raw_battery) if re.fullmatch(r"[0-9]{1,3}", raw_battery) else None
+            if battery is not None and battery > 100: battery = None
+            with b.lock:
+                if battery != b.nook_battery:
+                    b.nook_battery = battery
+                    b.updated = 0
+
             logging.info("Nook contact; battery=%s", re.sub(r"[^0-9]", "", self.headers.get("Percent-Charged", ""))[:3])
             b.refresh()
             expires = int(time.time()) + 7200

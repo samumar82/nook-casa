@@ -10,6 +10,7 @@ Weather, energy, hot water, EV battery and upcoming waste collection on a 6-inch
 
 ## Features
 
+- Nook battery percentage in the top-right corner, updated at each device contact.
 - Full date and local time, major Italian holidays and a saint of the day when available.
 - Today's weather and a three-day forecast, minimum/maximum temperatures and numeric AQI.
 - Home battery charge, today's solar generation, grid import and total home consumption; XPENG battery charge.
@@ -53,7 +54,7 @@ Full instructions: **[INSTALLATION.md](docs/INSTALLATION.md)**.
 5. In the client, enter API Base URL `http://HOME_ASSISTANT_IP:8099/api`, the server's Device ID and the same local API key.
 6. Enable **Sleep between updates** and select the **TRMNL** screensaver in the original Nook settings. Verify a full sleep/wake cycle on the device.
 
-The public server **0.3.1** and client **0.2.2** use English interface text. Server 0.3.0 introduced configurable entities compared with the personal 0.2.2 server. Server and client version numbers are independent. [Configuration and entity mapping](docs/CONFIGURATION.md).
+The public server **0.3.2** and client **0.2.2** use English interface text. Server 0.3.0 introduced configurable entities compared with the personal 0.2.2 server. Server and client version numbers are independent. [Configuration and entity mapping](docs/CONFIGURATION.md).
 
 ## Security and command behavior
 

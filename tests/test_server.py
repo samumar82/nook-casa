@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'nook_casa'))
 import server as s
 from PIL import Image
 now=datetime(2026,11,3,19,50,tzinfo=s.TZ)
-data={'demo':True,'occasion':'St. Martin de Porres','aqi':'42','operation':'Heating','spanky':'82','soc':'50','consumption':'12.48','solar':'5.5','grid':'1.307','acs':'43.5','force':'off','holiday':'off','waste_name':'Paper and cardboard','waste_date':'Tomorrow 04/11/2026','forecast':[{'datetime':(now+timedelta(days=i)).isoformat(),'condition':c,'temperature':t,'templow':l} for i,(c,t,l) in enumerate([('cloudy',14,7),('rainy',13,8),('partlycloudy',15,6),('sunny',16,5)])]}
+data={'demo':True,'nook_battery':87,'occasion':'St. Martin de Porres','aqi':'42','operation':'Heating','spanky':'82','soc':'50','consumption':'12.48','solar':'5.5','grid':'1.307','acs':'43.5','force':'off','holiday':'off','waste_name':'Paper and cardboard','waste_date':'Tomorrow 04/11/2026','forecast':[{'datetime':(now+timedelta(days=i)).isoformat(),'condition':c,'temperature':t,'templow':l} for i,(c,t,l) in enumerate([('cloudy',14,7),('rainy',13,8),('partlycloudy',15,6),('sunny',16,5)])]}
 png=s.render(data, now,s.refresh_interval(now))
 (Path(__file__).resolve().parents[1]/'docs/images/mockup.png').write_bytes(png)
 assert Image.open(io.BytesIO(png)).size==(600,800)
@@ -21,9 +21,10 @@ base=options['public_url']
 try:
     urllib.request.urlopen(base+'/api/display');raise AssertionError('unauthorized accepted')
 except urllib.error.HTTPError as e:assert e.code==401
-req=urllib.request.Request(base+'/api/display',headers={'ID':'nook-casa','access-token':options['api_key']})
+req=urllib.request.Request(base+'/api/display',headers={'ID':'nook-casa','access-token':options['api_key'],'Percent-Charged':'87'})
 with urllib.request.urlopen(req) as r:
     assert 'no-store' in r.headers['Cache-Control'];meta=json.load(r)
+assert b.nook_battery == 87
 assert 1 <= meta['refresh_rate'] <= 7200
 with urllib.request.urlopen(meta['image_url']) as r:assert Image.open(io.BytesIO(r.read())).size==(600,800)
 try:
@@ -43,5 +44,14 @@ b2.ha=ha
 s.occasion=lambda now: "St. Martin de Porres"
 result=b2.collect(now)
 assert result['waste_name']=='Paper + Glass' and result['waste_date']=='Tomorrow 04/11/2026'
+# Battery telemetry accepts zero and 100, rejects invalid or missing values,
+# and invalidates the short image cache when the displayed percentage changes.
+previous_revision = b.revision
+for raw, expected in [('0', 0), ('100', 100), ('101', None), ('-1', None), ('bad', None), ('', None)]:
+    request = urllib.request.Request(base+'/api/display', headers={
+        'ID':options['device_id'], 'access-token':options['api_key'], 'Percent-Charged':raw})
+    with urllib.request.urlopen(request) as response: json.load(response)
+    assert b.nook_battery == expected, (raw, b.nook_battery)
+    if expected == 0: assert b.revision != previous_revision
 http.shutdown()
 print('PASS: render 600x800, missing data, authentication, signature, cache headers, read-only API, forecast/calendar parsing')

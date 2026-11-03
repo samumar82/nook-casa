@@ -46,3 +46,7 @@ The server searches the next 30 days, including today, and groups event titles o
 ## Limitations
 
 The page is an image, not a Lovelace dashboard; it does not execute JavaScript on the Nook. Missing data appears as `--` or an unavailable message. Manual refresh invalidates the renderer cache but does not force HA integrations to fetch new upstream data. Command confirmation uses an immediate state read; integrations that update more slowly may yield an uncertain result even when the command arrived.
+
+## Nook battery
+
+The small percentage at the top right is the Nook battery, read from the client's `Percent-Charged` header at each refresh. It is independent of the home and EV batteries. Only integer values from 0 through 100 are accepted; missing or invalid values appear as `--`. No Home Assistant entity is needed. The percentage remains static while the Nook sleeps.
