@@ -1,21 +1,30 @@
 # Changelog
 
-## Server 0.3.0 — prima edizione pubblica
+## Server 0.3.1 / client 0.2.2 — English edition
 
-- Entità configurabili nelle opzioni dell’app Home Assistant, con valori di esempio.
-- Manuale di installazione, mappa dati, hardware verificato e anteprima del renderer.
-- Sorgenti client e APK 0.2.1 con attribuzioni e licenze.
+- Translate all project documentation, app metadata and installation messages into English.
+- Translate dashboard headings, dates, weather descriptions, buttons, states and server logs.
+- Use English daily saint names and English names for the existing Italian holiday calendar.
+- Translate hot water/Holiday confirmations and command outcome messages in the Android client.
+- Regenerate the mockup and publish a newly signed English APK with updated checksum.
+- Retain entity option names, API actions, package and touch coordinates for compatibility.
 
-## Server 0.2.2 — edizione personale
+## Server 0.3.0 — first public edition
 
-- Aggiornamenti ogni 15 minuti fra 07:00 e 20:30, altrimenti ogni 2 ore.
-- Consumo totale casa oggi accanto a batteria, solare, rete e auto.
+- Configurable entity IDs in Home Assistant app options, with example defaults.
+- Installation guide, data mapping, verified hardware and renderer preview.
+- Client source and APK 0.2.1 with attribution and license notices.
+
+## Server 0.2.2 — personal edition
+
+- Refresh every 15 minutes between 07:00 and 20:30, otherwise every 2 hours.
+- Add total home energy consumption today alongside home battery, solar, grid and EV data.
 
 ## Server / client 0.2.1
 
-- Allineamento dei pulsanti e degli stati; dicitura SCALDA ACS.
-- Client separato `it.samuele.nookcasa`, comandi ACS/Holiday con conferma e aggiornamento manuale.
+- Align buttons and status labels; use a clearer hot water heating label.
+- Separate `it.samuele.nookcasa` client with confirmed hot water/Holiday controls and manual refresh.
 
 ## Server 0.1.x
 
-- Primo ponte locale HA → PNG → client Nook, inizialmente in sola lettura.
+- Initial local HA → PNG → Nook client bridge, originally read-only.

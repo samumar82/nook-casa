@@ -1,7 +1,7 @@
 name: Nook Casa
-version: "0.3.0"
+version: "0.3.1"
 slug: nook_casa
-description: Pagina e-ink locale per Nook Simple Touch con comandi ACS e Holiday
+description: Local Nook Simple Touch e-ink dashboard with hot water and Holiday controls
 arch: [amd64, aarch64]
 startup: application
 boot: auto
@@ -10,7 +10,7 @@ homeassistant_api: true
 ports:
   8099/tcp: 8099
 ports_description:
-  8099/tcp: API locale Nook
+  8099/tcp: Local Nook API
 options:
   public_url: "http://192.168.1.100:8099"
   device_id: "nook-casa"
@@ -18,15 +18,15 @@ options:
   refresh_seconds: 1800
   entity_soc: "sensor.batteries_state_of_capacity"
   entity_solar: "sensor.inverter_daily_yield"
-  entity_grid: "sensor.rete_prelevata_oggi_da_potenza"
-  entity_consumption: "sensor.consumo_casa_oggi"
+  entity_grid: "sensor.grid_import_today"
+  entity_consumption: "sensor.home_consumption_today"
   entity_acs: "sensor.ecodan_heatpump_dhw_current_temp"
   entity_force: "switch.ecodan_heatpump_force_dhw"
   entity_holiday: "switch.ecodan_heatpump_holiday_mode"
   entity_operation: "sensor.ecodan_heatpump_operation_mode"
   entity_aqi: "sensor.air_quality_index"
   entity_spanky: "sensor.xpeng_battery"
-  weather_entity: "weather.casa"
+  weather_entity: "weather.home"
   waste_calendar: "calendar.waste_collection"
 schema:
   public_url: url

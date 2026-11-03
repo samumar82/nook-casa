@@ -1,46 +1,46 @@
-# Compilazione
+# Building from source
 
 ## Server
 
-L’app utilizza `python:3.12-slim-bookworm`, Pillow 11.3.0, font DejaVu e tzdata. Home Assistant Supervisor costruisce il Dockerfile. Non vengono compilati o caricati moduli sul Nook.
+The app uses `python:3.12-slim-bookworm`, Pillow 11.3.0, DejaVu fonts and tzdata. Home Assistant Supervisor builds the Dockerfile. No server modules are compiled or installed on the Nook.
 
-Per sviluppo puoi avviare il server fuori da Supervisor impostando `NOOK_OPTIONS` al percorso di un file JSON di opzioni, `NOOK_HA_API` a `http://HOST:8123/api` e `SUPERVISOR_TOKEN` a un token HA valido nel solo ambiente locale. Non salvare il token nel codice, nei log o nella repository. In modalità add-on il Supervisor fornisce automaticamente il token.
+For development outside Supervisor, set `NOOK_OPTIONS` to a JSON options file, `NOOK_HA_API` to `http://HOST:8123/api`, and `SUPERVISOR_TOKEN` to a valid HA token in your local environment only. Do not commit the token or include it in logs. In app/add-on mode, Supervisor supplies its token automatically.
 
-## Client Android legacy
+## Legacy Android client
 
-Runtime API 7, sorgente/bytecode Java 6, DEX legacy, firma JAR **v1**. È stato compilato con:
+Runtime API 7, Java 6 source/bytecode, legacy DEX and **v1** JAR signing. The verified toolchain is:
 
-- OpenJDK 17 per eseguire ECJ, dx e apksigner;
+- OpenJDK 17 to run ECJ, dx and apksigner;
 - Eclipse ECJ 3.33;
 - Android platform **android-20** (`android.jar`);
-- Android Build Tools **28.0.3**: aapt, dx, zipalign, apksigner;
-- SpongyCastle `core`, `prov`, `bctls-jdk15on`, tutti **1.58.0.0**.
+- Android Build Tools **28.0.3**: aapt, dx, zipalign and apksigner;
+- SpongyCastle `core`, `prov` and `bctls-jdk15on`, version **1.58.0.0**.
 
-La piattaforma di compilazione 20 non cambia il runtime minimo 7. Evita di introdurre API Java/Android recenti: il dispositivo non le ha. I sorgenti mantengono il percorso storico `src/com/bpmct/trmnl_nook_simple_touch`, ma il package dichiarato è `it.samuele.nookcasa`.
+Compile platform 20 does not change the minimum runtime API 7. Avoid newer Java/Android APIs that do not exist on the device. Sources retain the historical path `src/com/bpmct/trmnl_nook_simple_touch`, while their declared package is `it.samuele.nookcasa`.
 
-Scarica le dipendenze come descritto in [README_SPONGYCASTLE.md](../android/libs/README_SPONGYCASTLE.md), poi dalla radice della repository:
+Download dependencies as explained in [README_SPONGYCASTLE.md](../android/libs/README_SPONGYCASTLE.md), then run from the repository root:
 
 ```bash
-export ANDROID_PLATFORM_JAR=/percorso/android-20/android.jar
-export ANDROID_BUILD_TOOLS=/percorso/build-tools/28.0.3
-export ECJ_JAR=/percorso/ecj.jar
+export ANDROID_PLATFORM_JAR=/path/to/android-20/android.jar
+export ANDROID_BUILD_TOOLS=/path/to/build-tools/28.0.3
+export ECJ_JAR=/path/to/ecj.jar
 bash scripts/build_android.sh
 ```
 
-L’output è `android/bin/nook-casa-aligned.apk`, **ancora non firmato**. Per installare un APK creato da te, genera e conserva una tua chiave privata e firma con apksigner:
+The output is `android/bin/nook-casa-aligned.apk`, which is **not yet signed**. To install your own build, generate and keep your own private key, then sign using apksigner:
 
 ```bash
 "$ANDROID_BUILD_TOOLS/apksigner" sign \
-  --ks /percorso/privato/chiave.p12 --ks-key-alias tuo-alias \
+  --ks /private/path/key.p12 --ks-key-alias your-alias \
   --min-sdk-version 7 --v1-signing-enabled true --v2-signing-enabled false \
-  --out android/bin/nook-casa-personale.apk android/bin/nook-casa-aligned.apk
-"$ANDROID_BUILD_TOOLS/apksigner" verify --min-sdk-version 7 android/bin/nook-casa-personale.apk
+  --out android/bin/nook-casa-custom.apk android/bin/nook-casa-aligned.apk
+"$ANDROID_BUILD_TOOLS/apksigner" verify --min-sdk-version 7 android/bin/nook-casa-custom.apk
 ```
 
-Lascia che apksigner chieda la password; non inserirla nel comando o nel repository. La chiave privata usata per l’APK distribuito non è inclusa. La firma v1 è essenziale per Android 2.1. Mantieni la stessa chiave per tutti i tuoi aggiornamenti, altrimenti Android rifiuta `install -r`.
+Let apksigner prompt for the password; do not put it in the command or repository. The private key for the distributed APK is not included. v1 signing is essential for Android 2.1. Keep the same key for subsequent updates, otherwise Android rejects `install -r`.
 
-## Vincoli da conservare
+## Constraints to preserve
 
-Il rendering e il client condividono le coordinate dei pulsanti documentate in [MOCKUP.md](MOCKUP.md). Il sistema di rotazione ereditato dal client originale è necessario sul firmware Nook: non applicare correzioni al framebuffer alla cieca. Il salvaschermo viene aggiornato prima dello standby; il ciclo di sospensione deriva dall’upstream.
+The renderer and client share the button coordinates documented in [MOCKUP.md](MOCKUP.md). The inherited rotation handling is required by Nook firmware; do not change framebuffer behavior blindly. The screensaver is written before sleep, and the sleep cycle derives from upstream.
 
-Il client conserva anche schermate/funzioni TRMNL ereditate. Il percorso supportato da Nook Casa è quello locale con credenziali inserite manualmente; showcase e registrazione cloud non sono necessari né verificati qui.
+The client also retains inherited TRMNL screens and features. Nook Casa's supported workflow is the local server with manually entered credentials; showcase and cloud registration are unnecessary and unverified here.

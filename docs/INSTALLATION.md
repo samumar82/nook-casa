@@ -1,112 +1,112 @@
-# Installazione
+# Installation
 
-## 1. Preparare il Nook
+## 1. Prepare the Nook
 
-Questa guida parte da un **Nook Simple Touch BNRV300 già con root**. Nell’installazione originale è stato usato NookManager, con backup completo prima delle modifiche. Non usare immagini di root di altri modelli. Conserva una copia del backup fuori dalla microSD.
+This guide assumes a **rooted Nook Simple Touch BNRV300**. The original setup used NookManager, with a complete backup made before system changes. Do not use rooting images intended for other models. Keep a copy of the backup outside the microSD card.
 
-Abilita ADB sul Nook con lo strumento disponibile sul tuo sistema rooted. Se usi ADB via Wi-Fi, PC e Nook devono potersi raggiungere. La porta 5555 non deve essere esposta a Internet. Il root non serve ai singoli comandi ACS: serve alla preparazione/installazione del vecchio dispositivo.
+Enable ADB using a tool available on your rooted device. For Wi-Fi ADB, the PC and Nook must be able to reach each other. Never expose port 5555 to the Internet. Root is used for device preparation; individual hot water commands do not require root.
 
-## 2. Installare l’app Home Assistant
+## 2. Install the Home Assistant app
 
-In **Impostazioni → App / Componenti aggiuntivi → Store → menu → Repository**, aggiungi:
+Open **Settings → Apps / Add-ons → Store → menu → Repositories** and add:
 
 ```text
 https://github.com/samumar82/nook-casa
 ```
 
-Ricarica lo Store, apri **Nook Casa** e installa. L’app viene compilata localmente: il primo avvio richiede alcuni minuti. Deve essere disponibile l’accesso ai repository dei pacchetti del Dockerfile.
+Reload the store, open **Nook Casa** and install it. The app is built locally, so the initial installation may take several minutes. The Dockerfile's package repositories must be reachable.
 
-### Alternativa: installazione locale
+### Alternative: local installation
 
-Dal Terminale HA con accesso a `/addons`, scarica ed esegui `scripts/install_local.sh` oppure copia la cartella `nook_casa` della repository in `/addons/nook_casa`. Lo script rifiuta di sovrascrivere una cartella esistente e genera una chiave locale.
+In the HA Terminal with access to `/addons`, run a downloaded copy of `scripts/install_local.sh`, or copy this repository's `nook_casa` directory into `/addons/nook_casa`. The script refuses to overwrite an existing directory and generates a local key.
 
 ```bash
 bash /config/install_local.sh
 ha apps install local_nook_casa
 ```
 
-Se lo Store non mostra subito l’app, la CLI può installare direttamente lo slug locale. `ha store reload` può impiegare tempo se altre repository sono lente. Non è normalmente necessario riavviare l’intero host.
+If the store does not show the app immediately, the CLI can install the local slug directly. `ha store reload` may take time when other repositories are slow. Restarting the host is normally unnecessary.
 
-## 3. Configurare il server
+## 3. Configure the server
 
-Genera una chiave nel terminale HA:
+Generate a local key in the HA Terminal:
 
 ```bash
 python3 -c 'import secrets; print(secrets.token_urlsafe(24))'
 ```
 
-Nelle opzioni dell’app inserisci:
+Set these app options:
 
-- `public_url`: `http://IP_DI_HOME_ASSISTANT:8099`, senza `/api`.
-- `device_id`: ad esempio `nook-casa`.
-- `api_key`: la chiave appena generata, almeno 20 caratteri.
-- Entità: sostituisci gli esempi con le tue, come spiegato in [CONFIGURATION.md](CONFIGURATION.md).
+- `public_url`: `http://HOME_ASSISTANT_IP:8099`, without `/api`.
+- `device_id`: for example, `nook-casa`.
+- `api_key`: the generated key, at least 20 characters long.
+- Entities: replace the examples with your entity IDs; see [CONFIGURATION.md](CONFIGURATION.md).
 
-Non condividere screenshot con la chiave. Avvia l’app; verifica da un computer della LAN:
+Do not share screenshots containing the key. Start the app and check it from a computer on the LAN:
 
 ```bash
-curl --max-time 15 http://IP_DI_HOME_ASSISTANT:8099/health
+curl --max-time 15 http://HOME_ASSISTANT_IP:8099/health
 ```
 
-Risultato atteso: `{"status":"ok"}`. Subito dopo lo start può servire qualche secondo prima che la porta risponda. Per installazioni locali:
+Expected response: `{"status":"ok"}`. The port may take a few seconds to become available after startup. For local installations:
 
 ```bash
 ha apps start local_nook_casa
 ha apps logs local_nook_casa
 ```
 
-Con installazione da repository lo slug include il prefisso assegnato dal Supervisor: usa la UI oppure individua quello corretto con `ha apps list`.
+For repository-store installations, Supervisor assigns a repository-specific slug prefix. Use the UI or find the correct slug with `ha apps list`.
 
-## 4. Installare il client da Windows
+## 4. Install the client from Windows
 
-Scarica l’APK in `downloads/` e i [Platform Tools ufficiali Google](https://developer.android.com/tools/releases/platform-tools). Apri PowerShell nella cartella che contiene `adb.exe`.
+Download the APK from `downloads/` and the official [Google Platform Tools](https://developer.android.com/tools/releases/platform-tools). Open PowerShell in the directory containing `adb.exe`.
 
-Sul Nook, **esci dal vecchio TRMNL con Exit**. Non tenere attivi entrambi i client: condividono il percorso del salvaschermo e possono avere timer concorrenti.
+On the Nook, **choose Exit in the original TRMNL app**. Do not keep both clients running: they share a screensaver path and may have competing timers.
 
-Sostituisci IP e percorso APK:
+Replace the Nook IP and APK path:
 
 ```powershell
-.\adb.exe connect IP_DEL_NOOK:5555
-.\adb.exe -s IP_DEL_NOOK:5555 install -r "C:\percorso\nook-casa-0.2.1.apk"
-.\adb.exe -s IP_DEL_NOOK:5555 shell am start -n it.samuele.nookcasa/.DisplayActivity
+.\adb.exe connect NOOK_IP:5555
+.\adb.exe -s NOOK_IP:5555 install -r "C:\path\nook-casa-0.2.2.apk"
+.\adb.exe -s NOOK_IP:5555 shell am start -n it.samuele.nookcasa/.DisplayActivity
 ```
 
-L’app ha package `it.samuele.nookcasa`, separato dall’originale `com.bpmct.trmnl_nook_simple_touch`. Non eredita automaticamente le sue credenziali.
+The package is `it.samuele.nookcasa`, separate from the original `com.bpmct.trmnl_nook_simple_touch`. It does not automatically inherit the original app's credentials.
 
-## 5. Configurare il client
+## 5. Configure the client
 
-Apri **Settings → Edit Credentials**:
+Open **Settings → Edit Credentials**:
 
-| Campo | Valore |
+| Field | Value |
 | --- | --- |
-| API Base URL | `http://IP_DI_HOME_ASSISTANT:8099/api` |
-| Device ID | Lo stesso `device_id` del server |
-| API Key | La chiave locale, non un token HA |
+| API Base URL | `http://HOME_ASSISTANT_IP:8099/api` |
+| Device ID | The server's `device_id` |
+| API Key | The local key, not a Home Assistant token |
 
-Salva. Abilita **Allow HTTP** nelle impostazioni di rete del client, se necessario. Attiva **Sleep between updates** per la batteria. Nelle impostazioni originali Nook seleziona il salvaschermo **TRMNL** con timeout di 2 minuti, come suggerito dal client. Viene usato `/media/screensavers/TRMNL/display.png`.
+Save the settings. Enable **Allow HTTP** in the client's network settings if needed. Enable **Sleep between updates** for battery operation. In the original Nook settings, select the **TRMNL** screensaver with a 2-minute timeout, as suggested by the client. The image is saved to `/media/screensavers/TRMNL/display.png`.
 
-Risveglia il dispositivo per usare i pulsanti; attendi l’eventuale riconnessione Wi-Fi. AGGIORNA ricarica la pagina; SCALDA ACS e CAMBIA mostrano le conferme. Fuori dalle tre zone compare il menu.
+Wake the device before using touch controls and allow Wi-Fi to reconnect if necessary. REFRESH reloads the page; HEAT WATER and CHANGE open confirmation controls. Tapping outside these three regions opens the menu.
 
-## Aggiornare e tornare indietro
+## Updates and rollback
 
-Per installazioni da Store, aggiorna l’app dalla UI e ricontrolla le opzioni. Il client cambia solo quando viene pubblicato un nuovo APK: server e client hanno versioni indipendenti.
+For store installations, update the app through the UI and review its options. Update the client only when a new APK is released; server and client versions are independent.
 
-Per installazioni locali, conserva un backup di `/addons/nook_casa` e delle opzioni prima di sostituire i sorgenti, poi stop/rebuild/start dello slug locale. I vecchi script personali autoestraenti non sono il canale di aggiornamento di questa repository pubblica.
+For local installations, back up `/addons/nook_casa` and the app options before replacing source files, then stop, rebuild and start the local slug. Older personal self-extracting update scripts are not this public repository's update channel.
 
-L’APK qui incluso è firmato. Aggiornamenti dello stesso package devono avere la stessa firma. Una compilazione firmata con una propria chiave richiede la rimozione dell’APK precedente se le firme differiscono, con perdita delle preferenze locali. La chiave privata del manutentore non è pubblicata.
+The included APK is signed. Updates for the same package must use the same signing key. A build signed with your own key may require uninstalling the distributed APK first, which removes its local preferences. The maintainer's private signing key is not published.
 
-Per tornare al client originale: menu **Exit** in Nook Casa e avvio di TRMNL. Per ripristinare anche il server usa il backup della versione precedente, mantenendo le relative opzioni. Non ripristinare mai un backup completo del Nook di un altro dispositivo.
+To return to the original client, choose **Exit** in Nook Casa and open TRMNL. Restore the previous server source and matching options from your backup if needed. Never restore another Nook's full-device backup onto your device.
 
-## Problemi comuni
+## Troubleshooting
 
-| Sintomo | Verifica |
+| Symptom | Check |
 | --- | --- |
-| `adb.exe` non riconosciuto | Apri PowerShell nella cartella Platform Tools oppure usa il percorso completo |
-| ADB offline/rifiutato | Risveglia il Nook; controlla Wi-Fi e ADB su TCP |
-| Toccare un pulsante apre TRMNL | È ancora attivo il client originale, oppure il nuovo client non è quello avviato |
-| Errore TLS su porta HTTP | L’URL deve iniziare con `http://`, non `https://`; abilita HTTP nel client |
-| Valore `--` | Entità errata/non disponibile o lettura HA fallita; controlla opzioni e log |
-| Meteo vuoto | L’entità deve supportare `weather.get_forecasts`, tipo `daily` |
-| Orario fermo | È stampato nel PNG e cambia a ogni aggiornamento; il fuso è Europe/Rome |
-| Comando dall’esito incerto | Controlla lo switch in HA e aggiorna la pagina prima di riprovare |
-| Barre nere invece della pagina | Verifica client Nook Casa, PNG corretto e salvaschermo; conserva log e versione prima di modificare il framebuffer |
+| `adb.exe` is not recognized | Open PowerShell in Platform Tools or use the executable's full path |
+| ADB is offline or connection is refused | Wake the Nook; check Wi-Fi and TCP ADB |
+| Tapping a button opens TRMNL | The original client is still running, or the new client has not been launched |
+| TLS error against an HTTP port | Use `http://`, not `https://`, and enable HTTP in the client |
+| A value shows `--` | Check entity IDs, availability, HA access and server logs |
+| Empty weather forecast | The weather entity must support `weather.get_forecasts` with type `daily` |
+| Clock appears frozen | It is printed in the PNG and only changes at refresh; the time zone is Europe/Rome |
+| Command outcome is uncertain | Check the switch in HA and refresh the page before trying again |
+| Black bars instead of the page | Check the Nook Casa client, PNG and screensaver; preserve logs and version information before changing framebuffer behavior |

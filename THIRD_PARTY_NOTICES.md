@@ -1,16 +1,16 @@
-# Provenienza e componenti di terze parti
+# Provenance and third-party notices
 
-## Client TRMNL Nook Simple Touch
+## TRMNL Nook Simple Touch client
 
-Origine: https://github.com/usetrmnl/trmnl-nook-simple-touch
+Source: https://github.com/usetrmnl/trmnl-nook-simple-touch
 
-Base: tag **v0.16.0**, licenza **MIT**, copyright **2026 BPMCT**. Il testo originale completo è conservato in `android/LICENSE`; il file `LICENSE` della repository mantiene lo stesso avviso e aggiunge l’attribuzione alle modifiche Nook Casa.
+Based on tag **v0.16.0**, licensed under **MIT**, copyright **2026 BPMCT**. The complete original notice is retained in `android/LICENSE`; the repository's `LICENSE` preserves it and adds attribution for Nook Casa modifications.
 
-Modifiche Nook Casa: package/app separati, aree touch sul PNG, conferme ACS/Holiday, invio di comandi locali autenticati con ID richiesta, gestione della riconnessione Wi-Fi prima dei comandi. Gestione e-ink, salvaschermo, rotazione, TLS legacy, impostazioni e ciclo sleep derivano dal progetto originale. Le risorse Android sono conservate dalla distribuzione upstream.
+Nook Casa changes: a separate app/package, PNG touch regions, hot water/Holiday confirmations, authenticated local commands with request IDs, and Wi-Fi reconnection before commands. E-ink handling, screensavers, rotation, legacy TLS, settings and sleep behavior derive from upstream. Android resources are retained from the upstream distribution. The English edition translates the renderer, local command dialogs and project documentation.
 
 ## SpongyCastle / Bouncy Castle
 
-Il client e l’APK includono SpongyCastle **1.58.0.0**, componenti `core`, `prov`, `bctls-jdk15on`. Sorgente: https://github.com/rtyley/spongycastle . Licenza: https://github.com/rtyley/spongycastle/blob/spongy-master/LICENSE.html .
+The client and APK include SpongyCastle **1.58.0.0**, components `core`, `prov` and `bctls-jdk15on`. Source: https://github.com/rtyley/spongycastle . License: https://github.com/rtyley/spongycastle/blob/spongy-master/LICENSE.html .
 
 Copyright (c) 2000-2017 The Legion of the Bouncy Castle Inc. (http://www.bouncycastle.org)
 
@@ -20,10 +20,10 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-## Server e dipendenze runtime
+## Server and runtime dependencies
 
-Server Nook Casa: MIT, copyright 2026 Samuele Marchetti. Python/Pillow, Debian, DejaVu e tzdata sono dipendenze ottenute durante la costruzione dell’immagine, con le rispettive licenze; non sono riclassificate come MIT di questo progetto. Pillow: https://github.com/python-pillow/Pillow/blob/main/LICENSE .
+Nook Casa server: MIT, copyright 2026 Samuele Marchetti. Python/Pillow, Debian, DejaVu and tzdata are dependencies obtained during image creation and retain their respective licenses; they are not relicensed under this project's MIT license. Pillow: https://github.com/python-pillow/Pillow/blob/main/LICENSE .
 
-## Dati e marchi
+## Data and trademarks
 
-Le letture HA e le previsioni dipendono dalle integrazioni configurate dall’utente. Il nome del santo può essere ricavato dalla pagina giornaliera Vatican News, con cache locale; non si redistribuiscono articoli o immagini del sito. Nessuna licenza software conferisce diritti sui marchi dei prodotti citati.
+HA readings and forecasts depend on the user's configured integrations. A saint's name may be retrieved from the English Vatican News daily page and cached locally; articles and site images are not redistributed. A software license does not grant rights to product trademarks.

@@ -284,16 +284,16 @@ public class DisplayActivity extends Activity {
                     if (x >= 438 && x <= 576 && y >= 738 && y <= 770) {
                         casaRequest("refresh");
                     } else if (x >= 318 && x <= 576 && y >= 477 && y <= 528) {
-                        new AlertDialog.Builder(DisplayActivity.this).setTitle("Scalda ACS")
-                            .setMessage("Avviare il riscaldamento dell'acqua calda sanitaria?")
-                            .setPositiveButton("Avvia", new DialogInterface.OnClickListener() {
+                        new AlertDialog.Builder(DisplayActivity.this).setTitle("Heat Water")
+                            .setMessage("Start domestic hot water heating?")
+                            .setPositiveButton("Start", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface d, int which) { casaRequest("force_dhw"); }
-                            }).setNegativeButton("Annulla",null).show();
+                            }).setNegativeButton("Cancel",null).show();
                     } else if (x >= 438 && x <= 576 && y >= 569 && y <= 603) {
                         new AlertDialog.Builder(DisplayActivity.this).setTitle("Holiday mode")
-                            .setItems(new String[]{"Attiva Holiday", "Disattiva Holiday"}, new DialogInterface.OnClickListener() {
+                            .setItems(new String[]{"Enable Holiday", "Disable Holiday"}, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface d, int which) { casaRequest(which == 0 ? "holiday_on" : "holiday_off"); }
-                            }).setNegativeButton("Annulla",null).show();
+                            }).setNegativeButton("Cancel",null).show();
                     } else { toggleMenu(); }
                     return true;
                 }
@@ -1387,7 +1387,7 @@ public class DisplayActivity extends Activity {
                     // Local Nook Casa bridge only; never send these commands to TRMNL cloud.
                     String host = url.getHost();
                     boolean local = host.startsWith("192.168.") || host.startsWith("10.") || host.endsWith(".local");
-                    if (!"http".equals(url.getProtocol()) || !local) throw new java.io.IOException("Usare il server locale Nook Casa");
+                    if (!"http".equals(url.getProtocol()) || !local) throw new java.io.IOException("Use the local Nook Casa server");
                     conn = (HttpURLConnection) url.openConnection();
                     conn.setConnectTimeout(15000); conn.setReadTimeout(20000);
                     conn.setInstanceFollowRedirects(false);
@@ -1399,16 +1399,16 @@ public class DisplayActivity extends Activity {
                     byte[] bytes = body.toString().getBytes("UTF-8");
                     conn.setFixedLengthStreamingMode(bytes.length);
                     java.io.OutputStream output = conn.getOutputStream(); output.write(bytes); output.close();
-                    if (conn.getResponseCode() != 200) throw new java.io.IOException("Risposta del server non valida");
+                    if (conn.getResponseCode() != 200) throw new java.io.IOException("Invalid server response");
                     InputStream input = conn.getInputStream();
                     java.io.ByteArrayOutputStream result = new java.io.ByteArrayOutputStream();
                     byte[] buf = new byte[512]; int n;
-                    while ((n = input.read(buf)) != -1) { result.write(buf,0,n); if (result.size()>8192) throw new java.io.IOException("Risposta troppo lunga"); }
+                    while ((n = input.read(buf)) != -1) { result.write(buf,0,n); if (result.size()>8192) throw new java.io.IOException("Server response too large"); }
                     input.close();
                     org.json.JSONObject response = new org.json.JSONObject(new String(result.toByteArray(),"UTF-8"));
-                    if (!response.optBoolean("confirmed",false)) problem = "Comando inviato. Stato non ancora confermato: controlla la pagina aggiornata.";
+                    if (!response.optBoolean("confirmed",false)) problem = "Command sent. State not yet confirmed: check the refreshed page.";
                 } catch (Exception e) {
-                    problem = "Esito non confermato. Controlla lo stato aggiornato prima di ripetere il comando.";
+                    problem = "Outcome uncertain. Check the updated state before repeating the command.";
                 } finally { if (conn != null) conn.disconnect(); }
                 final String message = problem;
                 runOnUiThread(new Runnable() {
