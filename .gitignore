@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+options.json
+local.properties
+android/bin/
+android/gen/
+android/libs/*.jar
+*.p12
+*.jks
+*.keystore
+*password*.txt
+signing/
+private/

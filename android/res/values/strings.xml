@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Nook Casa</string>
+    <string name="dummy_content">NOOK\nTEST\nPLACEHOLDER</string>
+    <string name="api_base_url_default">https://usetrmnl.com/api</string>
+
+</resources>
