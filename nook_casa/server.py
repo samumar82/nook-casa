@@ -197,7 +197,6 @@ def render(data, now, interval):
     aligned((24,8,495,44),date_label,27,True)
     aligned((508,8,576,44),num(data.get('nook_battery'),0,'%'),15,True,True)
     aligned((24,48,448,85),data.get('occasion',''),26,True)
-    aligned((458,44,576,87),now.strftime('%H:%M'),32,True,True)
     line(96)
     text(24,105,'WEATHER / TODAY + NEXT 3 DAYS',18,True)
     forecasts={}
@@ -227,8 +226,7 @@ def render(data, now, interval):
     operation=data.get('operation')
     if operation in (None,'unknown','unavailable'):operation='Unavailable'
     text(24,533,'Operation: '+str(operation),18)
-    line(563)
-    aligned((24,569,216,603),'HOLIDAY MODE',18,True,True)
+    aligned((24,569,216,603),'HOLIDAY MODE',18,True)
     holiday=data.get('holiday')
     aligned((216,569,416,603),'ENABLED' if holiday=='on' else 'DISABLED' if holiday=='off' else '--',18,True,True)
     button((438,569,576,603),'CHANGE',False,17)
@@ -489,3 +487,4 @@ def main():
     server.serve_forever()
 
 if __name__ == "__main__": main()
+

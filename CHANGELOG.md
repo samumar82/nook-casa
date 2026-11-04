@@ -1,3 +1,12 @@
+# 0.4.3 — 2026-11-04
+
+- Increase the saint header to 30 px and use the full available row.
+- Remove the header clock; retain footer update times and Nook battery.
+- Remove the divider between operation state and Holiday Mode; align both labels at x=24.
+- Match Holiday artwork to the existing client hitbox (438,569)-(576,603); keep vertical text centering.
+- Verify all three buttons against Android touch and pressed-feedback bounds. Client 0.4.1 remains compatible.
+- Refresh renderer previews and document these changes.
+
 # Changelog
 
 ## Server and client 0.4.1
@@ -49,3 +58,4 @@
 ## Server 0.1.x
 
 - Initial local HA → PNG → Nook client bridge, originally read-only.
+

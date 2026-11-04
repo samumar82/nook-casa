@@ -1,5 +1,5 @@
 name: Nook Casa
-version: "0.4.1"
+version: "0.4.3"
 slug: nook_casa
 description: Local Nook Simple Touch e-ink dashboard with hot water and Holiday controls
 arch: [amd64, aarch64]
@@ -45,3 +45,4 @@ schema:
   entity_spanky: str
   weather_entity: str
   waste_calendar: str
+
