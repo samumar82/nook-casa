@@ -72,103 +72,177 @@ def font(size, bold=False):
     family = "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"
     return ImageFont.truetype(family, size)
 
+def weather_icon(im, bounds, condition):
+    """Draw high-contrast weather symbols without external fonts or assets."""
+    from PIL import ImageFilter
+    x, y, w, h = bounds
+    tile = Image.new('L', (110, 80), 255)
+    d = ImageDraw.Draw(tile)
+    known = {'sunny','clear-night','partlycloudy','cloudy','rainy','pouring','lightning','lightning-rainy','snowy','snowy-rainy','fog','windy','windy-variant','hail','exceptional'}
+    if condition not in known:
+        d.text((39, 12), '?', font=font(42, True), fill=0)
+    else:
+        if condition in ('sunny','partlycloudy','exceptional'):
+            cx, cy = (53,38) if condition == 'sunny' else (34,26)
+            for angle in range(0,360,45):
+                a = math.radians(angle)
+                d.line((cx+22*math.cos(a),cy+22*math.sin(a),cx+30*math.cos(a),cy+30*math.sin(a)),fill=0,width=3)
+            d.ellipse((cx-16,cy-16,cx+16,cy+16),outline=0,width=3)
+        if condition == 'clear-night':
+            d.ellipse((30,8,78,60),fill=0)
+            d.ellipse((45,2,88,48),fill=255)
+        if condition in ('windy','windy-variant','fog'):
+            for yy, end in ((24,87),(39,99),(54,79)):
+                d.line((16,yy,end,yy),fill=0,width=4)
+                if condition != 'fog': d.arc((end-16,yy-14,end+3,yy),180,360,fill=0,width=3)
+        if condition not in ('sunny','clear-night','windy','windy-variant','fog'):
+            mask=Image.new('L',tile.size,0);m=ImageDraw.Draw(mask)
+            m.ellipse((21,27,54,57),fill=255);m.ellipse((39,14,78,58),fill=255)
+            m.ellipse((66,29,94,57),fill=255);m.rectangle((36,38,81,57),fill=255)
+            tile.paste(0,(0,0),mask.filter(ImageFilter.MaxFilter(7)))
+            tile.paste(255,(0,0),mask);d=ImageDraw.Draw(tile)
+            if condition in ('rainy','pouring','lightning-rainy','snowy-rainy'):
+                for xx in (32,53,74):d.line((xx,65,xx-5,76),fill=0,width=3)
+                if condition == 'pouring':
+                    for xx in (42,63,84):d.line((xx,64,xx-5,75),fill=0,width=2)
+            if condition in ('snowy','snowy-rainy','hail'):
+                for xx in (31,57,81):
+                    if condition == 'hail':d.ellipse((xx-2,67,xx+2,71),fill=0)
+                    else:
+                        d.line((xx-4,70,xx+4,70),fill=0,width=2)
+                        d.line((xx,66,xx,74),fill=0,width=2)
+                        d.line((xx-3,67,xx+3,73),fill=0,width=2)
+            if condition in ('lightning','lightning-rainy'):
+                d.polygon(((58,45),(46,65),(57,65),(48,79),(73,58),(61,58),(69,45)),fill=0)
+    im.paste(tile.resize((w,h),Image.Resampling.LANCZOS),(x,y))
+
+def waste_icons(im, name):
+    """Match common collection names and draw compact monochrome material symbols."""
+    value=str(name).lower()
+    groups=[('paper',('carta','cartone','paper','cardboard')),('plastic',('plastica','plastic','imballaggi','packaging')),('glass',('vetro','glass')),('organic',('umido','organico','organic','food waste')),('residual',('secco','indifferenziato','residuo','residual','general waste')),('metal',('lattine','metalli','metal','cans')),('garden',('verde','sfalci','garden'))]
+    kinds=[key for key,terms in groups if any(term in value for term in terms)]
+    if not kinds or len(kinds)>2:kinds=['mixed']
+    for i,kind in enumerate(kinds):
+        tile=Image.new('L',(64,82),255);d=ImageDraw.Draw(tile)
+        if kind=='paper':
+            d.rectangle((10,13,43,61),outline=0,width=3)
+            d.polygon(((20,7),(43,7),(54,18),(54,66),(20,66)),fill=255,outline=0,width=3)
+            d.line((43,7,43,19,54,19),fill=0,width=2)
+            for yy in (28,37,46,55):d.line((27,yy,47,yy),fill=0,width=2)
+        elif kind in ('plastic','glass'):
+            d.polygon(((27,8),(39,8),(39,21),(46,28),(46,64),(20,64),(20,28),(27,21)),outline=0,width=3)
+            d.rectangle((26,5,40,11),fill=0)
+            if kind=='plastic':
+                for yy in (34,42,50,58):d.line((22,yy,44,yy),fill=0,width=2)
+            else:d.rectangle((24,35,42,50),outline=0,width=2)
+        elif kind=='organic':
+            d.ellipse((12,25,53,65),outline=0,width=3)
+            d.rectangle((28,21,37,30),fill=255)
+            d.line((32,28,35,11),fill=0,width=3)
+            d.ellipse((37,9,54,20),outline=0,width=2)
+            d.line((16,39,18,34),fill=0,width=2)
+        elif kind=='metal':
+            d.rectangle((17,17,49,60),outline=0,width=3)
+            d.ellipse((17,10,49,23),fill=255,outline=0,width=3)
+            d.arc((17,53,49,66),0,180,fill=0,width=3)
+            d.ellipse((28,13,38,18),outline=0,width=2)
+        elif kind=='garden':
+            d.ellipse((12,12,52,60),outline=0,width=3)
+            d.line((20,66,42,23),fill=0,width=3)
+            d.line((29,47,20,32),fill=0,width=2)
+            d.line((34,38,47,34),fill=0,width=2)
+        else:
+            d.polygon(((19,23),(47,23),(43,65),(23,65)),outline=0,width=3)
+            d.line((14,20,52,20),fill=0,width=4)
+            d.rectangle((25,12,41,19),outline=0,width=3)
+            for xx in (29,37):d.line((xx,31,xx,57),fill=0,width=2)
+        width=62 if len(kinds)==2 else 78
+        x=450+i*64 if len(kinds)==2 else 486
+        im.paste(tile.resize((width,82),Image.Resampling.LANCZOS),(x,631))
+
+def display_interval(now, data):
+    # Poll active forced heating more often, including during the night window.
+    return min(refresh_interval(now),60) if data.get('force') == 'on' or data.get('_fast_poll') else refresh_interval(now)
+
+def collection_label(day, today):
+    delta=(day-today).days
+    relative={0: 'Today', 1: 'Tomorrow', 2: 'Day after tomorrow'}
+    if delta in relative:return relative[delta]
+    return f"{['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day.weekday()]} {day.day} {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][day.month-1]}"
+
 def render(data, now, interval):
-    im = Image.new("L", (600, 800), 255)
-    d = ImageDraw.Draw(im)
-    def text(x, y, value, size=22, bold=False, width=552):
-        value = str(value)
-        f = font(size, bold)
-        if d.textlength(value, font=f) > width:
-            while value and d.textlength(value + "...", font=f) > width:
-                value = value[:-1]
-            value += "..."
-        d.text((x, y), value, font=f, fill=0)
-    def aligned(bounds, value, size=18, bold=False, center=False):
-        x1, y1, x2, y2 = bounds
-        f = font(size, bold)
-        value = str(value)
-        while value and d.textlength(value, font=f) > x2-x1-8:
-            value = value[:-1]
-        left, top, right, bottom = d.textbbox((0, 0), value, font=f)
-        x = (x1+x2-(right-left))/2-left if center else x1-left
-        y = (y1+y2-(bottom-top))/2-top
-        d.text((round(x), round(y)), value, font=f, fill=0)
-    def line(y): d.line((24, y, 576, y), fill=0, width=2)
-    def section(y, title): text(24, y, title, 18, True)
-    text(24, 12, "THE HOME NEWSPAPER", 27, True, 474)
-    aligned((508, 12, 576, 46), num(data.get("nook_battery"), 0, "%"), 15, True, True)
-    weekdays_long = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-    date_label = f"{weekdays_long[now.weekday()]} {now.day} {months[now.month-1]} {now.year}  ·  {now:%H:%M}"
-    text(24, 51, date_label, 20)
-    text(24, 80, data.get("occasion", ""), 17, width=405 if data.get("demo") else 552)
-    if data.get("demo"):
-        text(452, 82, "DEMO", 14, True, 120)
-    line(108)
-    section(119, "WEATHER  /  TODAY + NEXT 3 DAYS")
-    days = [now.date() + timedelta(days=i) for i in range(4)]
-    forecasts = {}
-    for item in data.get("forecast", []):
-        try: forecasts[parse_date(item["datetime"]).date()] = item
-        except (ValueError, KeyError, TypeError): pass
-    weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    for i, day in enumerate(days):
-        x = 24 + i * 140
-        if i: d.line((x-8, 151, x-8, 256), fill=150)
-        text(x, 153, "Today" if i == 0 else weekdays[day.weekday()]+" "+day.strftime("%d"), 22, True, 128)
-        f = forecasts.get(day, {})
-        condition = WORDS.get(f.get("condition"), "Unavailable")
-        # Wrap short conditions to two lines instead of shrinking all text.
-        parts = condition.split()
-        if len(parts) > 1 and len(condition) > 12:
-            text(x, 184, parts[0], 17, width=128)
-            text(x, 206, " ".join(parts[1:]), 17, width=128)
-        else: text(x, 190, condition, 17, width=128)
-        text(x, 234, num(f.get("templow"),0)+" / "+num(f.get("temperature"),0)+" °C", 19, width=128)
-    text(24, 271, "AIR QUALITY   AQI " + num(data.get("aqi"), 0), 20, True)
-    line(304)
-    section(314, "ENERGY")
-    for i, (label, key, digits, suffix) in enumerate([
-        ("HOME BATT.", "soc", 0, "%"), ("SOLAR TODAY", "solar", 2, ""),
-        ("GRID TODAY", "grid", 2, ""), ("HOME USE", "consumption", 2, ""),
-        ("XPENG", "spanky", 0, "%")]):
-        x = 24 + i*112
-        text(x, 343, label, 13, True, 104)
-        text(x, 367, num(data.get(key),digits,suffix), 27, True, 104)
-        text(x, 409, "battery" if key in ("soc", "spanky") else "kWh today" if key == "consumption" else "kWh", 16, width=104)
-    line(438)
-    section(448, "HOT WATER")
-    aligned((24, 477, 299, 528), num(data.get("acs"),1," °C"), 37, True)
-    force = data.get("force")
-    text(430, 452, "Override " + ("ON" if force == "on" else "OFF" if force == "off" else "--"), 14, width=146)
-    d.rectangle((318, 477, 576, 528), outline=0, width=2)
-    aligned((318, 477, 576, 528), "HEAT WATER", 18, True, True)
-    operation = data.get("operation")
-    if operation in (None, "unknown", "unavailable"):
-        operation = "Unavailable"
-    text(24, 530, "Operation: " + str(operation), 19)
-    line(561)
-    aligned((24, 569, 207, 603), "HOLIDAY MODE", 18, True)
-    holiday = data.get("holiday")
-    aligned((216, 569, 423, 603), "ENABLED" if holiday == "on" else "DISABLED" if holiday == "off" else "--", 18, True)
-    d.rectangle((438, 569, 576, 603), outline=0, width=2)
-    aligned((438, 569, 576, 603), "CHANGE", 17, True, True)
-    line(613)
-    section(623, "WASTE COLLECTION")
-    text(24, 652, data.get("waste_name", "Unavailable"), 27, True)
-    text(24, 689, data.get("waste_date", "Calendar unavailable"), 23)
+    im = Image.new('L', (600,800),255);d=ImageDraw.Draw(im)
+    def text(x,y,value,size=22,bold=False,width=552):
+        value=str(value);f=font(size,bold)
+        while value and d.textlength(value,font=f)>width:
+            value=value[:-1]
+        d.text((x,y),value,font=f,fill=0)
+    def aligned(bounds,value,size=18,bold=False,center=False,ink=0):
+        x1,y1,x2,y2=bounds;value=str(value);f=font(size,bold)
+        while size>12 and d.textlength(value,font=f)>x2-x1-8:
+            size-=1;f=font(size,bold)
+        while value and d.textlength(value,font=f)>x2-x1-8:value=value[:-1]
+        left,top,right,bottom=d.textbbox((0,0),value,font=f)
+        xx=(x1+x2-(right-left))/2-left if center else x1-left
+        yy=(y1+y2-(bottom-top))/2-top
+        d.text((round(xx),round(yy)),value,font=f,fill=ink)
+    def line(y):d.line((24,y,576,y),fill=0,width=2)
+    def button(bounds,label,active=False,size=18):
+        d.rectangle(bounds,fill=0 if active else 255,outline=0,width=2)
+        aligned(bounds,label,size,True,True,255 if active else 0)
+    weekdays_long=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    months=['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    weekdays=['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    date_label=f'{weekdays_long[now.weekday()]} {now.day} {months[now.month-1]} {now.year}'
+    aligned((24,8,495,44),date_label,27,True)
+    aligned((508,8,576,44),num(data.get('nook_battery'),0,'%'),15,True,True)
+    aligned((24,48,448,85),data.get('occasion',''),24,True)
+    aligned((458,44,576,87),now.strftime('%H:%M'),32,True,True)
+    line(96)
+    text(24,105,'WEATHER / TODAY + NEXT 3 DAYS',18,True)
+    forecasts={}
+    for item in data.get('forecast',[]):
+        try:forecasts[parse_date(item['datetime']).date()]=item
+        except (ValueError,KeyError,TypeError):pass
+    for i in range(4):
+        day=now.date()+timedelta(days=i);x=24+i*140
+        if i:d.line((x-8,141,x-8,258),fill=150)
+        text(x,141,'Today' if i==0 else weekdays[day.weekday()]+' '+day.strftime('%d'),22,True,128)
+        f=forecasts.get(day,{})
+        weather_icon(im,(x+6,174,110,80),f.get('condition'))
+        text(x,260,num(f.get('templow'),0)+' / '+num(f.get('temperature'),0)+' °C',19,width=128)
+    text(24,292,'AIR QUALITY   AQI '+num(data.get('aqi'),0),19,True)
+    line(323)
+    text(24,333,'ENERGY / TODAY',18,True)
+    metrics=[('HOME BATT.', 'soc', 0, '%'), ('SOLAR', 'solar', 2, ''), ('GRID', 'grid', 2, ''), ('HOME USE', 'consumption', 2, ''), ('XPENG', 'spanky', 0, '%')]
+    for i,(label,key,digits,suffix) in enumerate(metrics):
+        x=24+i*112
+        text(x,362,label,13,True,104)
+        text(x,383,num(data.get(key),digits,suffix),27,True,104)
+        text(x,417,'battery' if key in ('soc','spanky') else 'kWh',14,width=104)
+    line(443)
+    text(24,451,'HOT WATER',18,True)
+    aligned((24,477,299,528),num(data.get('acs'),1,' °C'),37,True)
+    button((318,477,576,528),'HEAT WATER',data.get('force')=='on')
+    operation=data.get('operation')
+    if operation in (None,'unknown','unavailable'):operation='Unavailable'
+    text(24,533,'Operation: '+str(operation),18)
+    line(563)
+    aligned((24,569,207,603),'HOLIDAY MODE',18,True)
+    holiday=data.get('holiday')
+    aligned((216,569,423,603),'ENABLED' if holiday=='on' else 'DISABLED' if holiday=='off' else '--',18,True)
+    button((438,569,576,603),'CHANGE',False,17)
+    line(617)
+    text(24,633,data.get('waste_name','Unavailable'),28,True,416)
+    text(24,679,data.get('waste_date','Calendar unavailable'),25,True)
+    waste_icons(im,data.get('waste_name',''))
     line(727)
-    next_time = now + timedelta(seconds=interval)
-    aligned((24, 738, 419, 770), "Next edition " + next_time.strftime("%H:%M"), 18)
-    # Touch regions match the Nook Casa client; stock TRMNL still opens its menu.
-    d.rectangle((438, 738, 576, 770), outline=0, width=2)
-    aligned((438, 738, 576, 770), "REFRESH", 17, True, True)
-    if data.get("errors"):
-        text(24, 778, "Partial data: " + ", ".join(data.get("errors", [])), 14)
-    else: text(24, 778, "Updated at " + now.strftime("%H:%M"), 11)
-    out = io.BytesIO()
-    im.save(out, "PNG")
-    return out.getvalue()
+    next_time=now+timedelta(seconds=interval)
+    aligned((24,738,419,770),'Next edition '+next_time.strftime('%H:%M'),18)
+    button((438,738,576,770),'REFRESH',False,17)
+    text(24,778,('Partial data: '+', '.join(data.get('errors',[]))) if data.get('errors') else 'Updated at '+now.strftime('%H:%M'),11)
+    if data.get('demo'):text(390,780,'DEMO',10,True,80)
+    out=io.BytesIO();im.save(out,'PNG');return out.getvalue()
 
 class SaintParser(HTMLParser):
     def __init__(self):
@@ -231,6 +305,8 @@ class Bridge:
         self.updated = 0
         self.last_contact = None
         self.nook_battery = None
+        self.force_active = False
+        self.fast_poll_until = 0
         self.command_lock = threading.Lock()
         self.requests = {}
         self.token = os.environ.get("SUPERVISOR_TOKEN", "")
@@ -277,9 +353,7 @@ class Bridge:
                 first = start_dt(events[0])
                 same = [e for e in events if start_dt(e).date() == first.date()]
                 data["waste_name"] = " + ".join(dict.fromkeys(e.get("summary", "Collection") for e in same))
-                delta = (first.date()-now.date()).days
-                label = "Today" if delta == 0 else "Tomorrow" if delta == 1 else "On"
-                data["waste_date"] = label + " " + first.strftime("%d/%m/%Y")
+                data["waste_date"] = collection_label(first.date(), now.date())
             else:
                 data["waste_name"] = "No collection in the next 30 days"
                 data["waste_date"] = "Check the waste collection calendar"
@@ -294,7 +368,9 @@ class Bridge:
             now = datetime.now(TZ)
             data = dict(self.collect(now))
             data["nook_battery"] = self.nook_battery
-            self.image = render(data, now, refresh_interval(now))
+            data["_fast_poll"] = time.time() < self.fast_poll_until
+            self.force_active = data.get("force") == "on"
+            self.image = render(data, now, display_interval(now, data))
             self.revision = hashlib.sha256(self.image).hexdigest()[:20]
             self.updated = time.time()
             logging.info("Page generated; missing data: %s", ",".join(data.get("errors", [])) or "none")
@@ -345,6 +421,7 @@ class Handler(BaseHTTPRequestHandler):
             # Record before calling HA: a failed response must never duplicate a command.
             b.requests[request_id] = (time.time(),action,409,{"error":"command outcome uncertain; refresh state"})
             try:
+                if action == "force_dhw": b.fast_poll_until = time.time()+300
                 if action != "refresh":
                     entity = b.entities["force"] if action == "force_dhw" else b.entities["holiday"]
                     desired = "off" if action == "holiday_off" else "on"
@@ -386,7 +463,7 @@ class Handler(BaseHTTPRequestHandler):
             b.refresh()
             expires = int(time.time()) + 7200
             query = urlencode({"rev":b.revision,"expires":expires,"sig":b.signature(b.revision, expires)})
-            return self.send(200, {"status":0,"refresh_rate":refresh_interval(datetime.now(TZ)),
+            return self.send(200, {"status":0,"refresh_rate":display_interval(datetime.now(TZ), {"force":"on" if b.force_active else "off", "_fast_poll":time.time()<b.fast_poll_until}),
                 "image_url":b.options["public_url"].rstrip("/")+"/screen.png?"+query})
         if u.path == "/screen.png":
             q = parse_qs(u.query)

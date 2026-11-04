@@ -25,7 +25,7 @@ The hot water and Holiday Mode commands are designed for switches with semantics
 
 ## Refresh schedule
 
-The server returns `refresh_rate` as follows:
+The normal server `refresh_rate` is:
 
 - 07:00 ≤ local time < 20:30: 900 seconds.
 - Otherwise: 7200 seconds.
@@ -50,3 +50,11 @@ The page is an image, not a Lovelace dashboard; it does not execute JavaScript o
 ## Nook battery
 
 The small percentage at the top right is the Nook battery, read from the client's `Percent-Charged` header at each refresh. It is independent of the home and EV batteries. Only integer values from 0 through 100 are accepted; missing or invalid values appear as `--`. No Home Assistant entity is needed. The percentage remains static while the Nook sleeps.
+
+## Active hot water cycle and button feedback
+
+The server caps the refresh interval at 60 seconds while the configured force-heating switch is `on`. It also uses a five-minute short-polling window after a heating request to handle integration delays. The HEAT WATER button is filled black only when the latest state is `on`; unavailable states do not claim an active cycle. After the switch turns off, the next refresh restores the outline and the normal schedule. Client 0.4.0 additionally shows immediate black touch feedback while a command or refresh is pending.
+
+## Waste labels and symbols
+
+Events on the current day, the next day or two days later use relative labels without a date. Later events use the weekday, day and month, without a year. Material icons are inferred from common English and Italian event-title keywords: paper/cardboard, plastic/packaging, glass, organic food waste, residual waste, metal cans and garden waste. Two recognized materials display two symbols; unknown or more complex mixtures use a generic bin. Event titles are still shown, so the icon is supplementary.

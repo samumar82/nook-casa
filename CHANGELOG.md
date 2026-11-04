@@ -1,5 +1,14 @@
 # Changelog
 
+## Server and client 0.4.0
+
+- Replace the newspaper title with a larger bold date, saint and time header.
+- Render monochrome weather icons and waste material symbols without external assets.
+- Remove the waste heading and shorten collection dates.
+- Show immediate black touch feedback and retain a black hot water button while its switch is active.
+- Remove the separate override label; poll the active cycle every 60 seconds.
+- Preserve button coordinates, package and signing key.
+
 ## Server 0.3.2
 
 - Show the Nook battery percentage in the top-right corner of the first line.

@@ -85,6 +85,7 @@ public class DisplayActivity extends Activity {
     private TextView logView;
     private ImageView imageView;
     private String casaPendingAction;
+    private String casaPressed;
     private boolean casaCommandBusy = false;
     private ScrollView contentScroll;
     private RotateLayout appRotateLayout;
@@ -230,7 +231,28 @@ public class DisplayActivity extends Activity {
 
         imageRotateLayout = new RotateLayout(this);
         imageRotateLayout.setAngle((360 - APP_ROTATION_DEGREES) % 360);
-        imageView = new ImageView(this);
+        imageView = new ImageView(this) {
+            protected void onDraw(android.graphics.Canvas canvas) {
+                super.onDraw(canvas);
+                if (casaPressed == null) return;
+                int[] box = casaButtonBounds(casaPressed);
+                if (box == null) return;
+                int saved = canvas.save();
+                canvas.scale(getWidth()/600f, getHeight()/800f);
+                android.graphics.Paint paint = new android.graphics.Paint();
+                paint.setColor(0xFF000000);
+                canvas.drawRect(box[0],box[1],box[2],box[3],paint);
+                paint.setAntiAlias(true); paint.setColor(0xFFFFFFFF);
+                paint.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+                paint.setTextSize("force_dhw".equals(casaPressed) ? 18 : 17);
+                paint.setTextAlign(android.graphics.Paint.Align.CENTER);
+                String label = "force_dhw".equals(casaPressed) ? "HEAT WATER" :
+                    "refresh".equals(casaPressed) ? "REFRESH" : "CHANGE";
+                android.graphics.Paint.FontMetrics fm=paint.getFontMetrics();
+                canvas.drawText(label,(box[0]+box[2])/2f,(box[1]+box[3]-fm.ascent-fm.descent)/2f,paint);
+                canvas.restoreToCount(saved);
+            }
+        };
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         imageView.setVisibility(View.GONE);
         imageRotateLayout.setVisibility(View.GONE); // Hidden during boot so logView gets full height
@@ -274,13 +296,19 @@ public class DisplayActivity extends Activity {
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     downX = event.getX(); downY = event.getY();
+                    if (!casaCommandBusy && !fetchInProgress) {
+                        casaPressed = casaButtonAt(downX*600f/Math.max(1,v.getWidth()),downY*800f/Math.max(1,v.getHeight()));
+                        imageView.invalidate();
+                    }
                     return true;
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (Math.abs(event.getX()-downX) > 30 || Math.abs(event.getY()-downY) > 30) return true;
+                    if (Math.abs(event.getX()-downX) > 30 || Math.abs(event.getY()-downY) > 30) { casaClearPressed(); return true; }
                     float x = event.getX()*600f/Math.max(1,v.getWidth());
                     float y = event.getY()*800f/Math.max(1,v.getHeight());
                     if (casaCommandBusy || fetchInProgress) return true;
+                    String released = casaButtonAt(x,y);
+                    if (casaPressed != null && !casaPressed.equals(released)) { casaClearPressed(); return true; }
                     if (x >= 438 && x <= 576 && y >= 738 && y <= 770) {
                         casaRequest("refresh");
                     } else if (x >= 318 && x <= 576 && y >= 477 && y <= 528) {
@@ -288,15 +316,24 @@ public class DisplayActivity extends Activity {
                             .setMessage("Start domestic hot water heating?")
                             .setPositiveButton("Start", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface d, int which) { casaRequest("force_dhw"); }
-                            }).setNegativeButton("Cancel",null).show();
+                            }).setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d,int which) { casaClearPressed(); }
+                            }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                public void onCancel(DialogInterface d) { casaClearPressed(); }
+                            }).show();
                     } else if (x >= 438 && x <= 576 && y >= 569 && y <= 603) {
                         new AlertDialog.Builder(DisplayActivity.this).setTitle("Holiday mode")
                             .setItems(new String[]{"Enable Holiday", "Disable Holiday"}, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface d, int which) { casaRequest(which == 0 ? "holiday_on" : "holiday_off"); }
-                            }).setNegativeButton("Cancel",null).show();
-                    } else { toggleMenu(); }
+                            }).setNegativeButton("Cancel",new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface d,int which) { casaClearPressed(); }
+                            }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                public void onCancel(DialogInterface d) { casaClearPressed(); }
+                            }).show();
+                    } else { casaClearPressed(); toggleMenu(); }
                     return true;
                 }
+                if (event.getAction() == MotionEvent.ACTION_CANCEL) casaClearPressed();
                 return true;
             }
         });
@@ -1221,6 +1258,7 @@ public class DisplayActivity extends Activity {
             logW("generic_display not found or failed to load");
             return;
         }
+        casaPressed = null;
         imageView.setImageBitmap(bitmap);
         imageView.setVisibility(View.VISIBLE);
         if (imageRotateLayout != null) imageRotateLayout.setVisibility(View.VISIBLE);
@@ -1359,8 +1397,29 @@ public class DisplayActivity extends Activity {
         }
     }
 
+    private static int[] casaButtonBounds(String action) {
+        if ("refresh".equals(action)) return new int[]{438,738,576,770};
+        if ("force_dhw".equals(action)) return new int[]{318,477,576,528};
+        if ("holiday".equals(action) || "holiday_on".equals(action) || "holiday_off".equals(action)) return new int[]{438,569,576,603};
+        return null;
+    }
+    private static String casaButtonAt(float x,float y) {
+        String[] actions={"refresh","force_dhw","holiday"};
+        for (int i=0;i<actions.length;i++) {
+            int[] b=casaButtonBounds(actions[i]);
+            if (x>=b[0] && x<=b[2] && y>=b[1] && y<=b[3]) return actions[i];
+        }
+        return null;
+    }
+    private void casaClearPressed() {
+        casaPressed=null;
+        if (imageView!=null) imageView.invalidate();
+    }
+
     private void casaRequest(String action) {
         if (casaCommandBusy || fetchInProgress) return;
+        casaPressed = action;
+        imageView.invalidate();
         casaPendingAction = action;
         sleepPending = false;
         if (pendingIdleSleepRunnable != null) refreshHandler.removeCallbacks(pendingIdleSleepRunnable);
@@ -2368,6 +2427,7 @@ public class DisplayActivity extends Activity {
      */
     private void displayPreloadedImage(Bitmap bmp) {
         hideBootScreen();
+        casaPressed = null;
         imageView.setImageBitmap(bmp);
         lastDisplayedImage = bmp;
         writeScreenshotToScreensaver(bmp);
@@ -2646,6 +2706,7 @@ public class DisplayActivity extends Activity {
                     a.hideBootScreen();
                     a.hideNoWifiOverlay();
                     if (a.bootLayout != null) a.bootLayout.setVisibility(View.GONE);
+                    a.casaPressed = null;
                     a.imageView.setImageBitmap(ar.bitmap);
                     a.lastDisplayedImage = ar.bitmap;
                     // Always write screensaver immediately so TRMNL appears in NOOK's screensaver list

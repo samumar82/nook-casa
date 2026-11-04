@@ -67,7 +67,7 @@ Replace the Nook IP and APK path:
 
 ```powershell
 .\adb.exe connect NOOK_IP:5555
-.\adb.exe -s NOOK_IP:5555 install -r "C:\path\nook-casa-0.2.2.apk"
+.\adb.exe -s NOOK_IP:5555 install -r "C:\path\nook-casa-0.4.0.apk"
 .\adb.exe -s NOOK_IP:5555 shell am start -n it.samuele.nookcasa/.DisplayActivity
 ```
 
@@ -110,3 +110,7 @@ To return to the original client, choose **Exit** in Nook Casa and open TRMNL. R
 | Clock appears frozen | It is printed in the PNG and only changes at refresh; the time zone is Europe/Rome |
 | Command outcome is uncertain | Check the switch in HA and refresh the page before trying again |
 | Black bars instead of the page | Check the Nook Casa client, PNG and screensaver; preserve logs and version information before changing framebuffer behavior |
+
+## Upgrading to layout 0.4.0
+
+Update both the server and APK to 0.4.0 for touch feedback. The package and signing key are unchanged, so `adb install -r` preserves client preferences. Active forced hot water heating is checked every 60 seconds; this uses more battery during a cycle. The switch controls the visual active state; the app does not change the heating setpoint or terminate the cycle itself.
