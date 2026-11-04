@@ -50,11 +50,11 @@ Full instructions: **[INSTALLATION.md](docs/INSTALLATION.md)**.
 1. Back up the Nook before rooting or changing its system. This project does not automate rooting.
 2. Add `https://github.com/samumar82/nook-casa` to the Home Assistant app/add-on store repositories and install **Nook Casa**. Alternatively, follow the local installation instructions.
 3. Generate a local API key and configure `public_url`, `device_id` and your entity IDs. Start the app and check `/health`.
-4. Download [nook-casa-0.4.0.apk](downloads/nook-casa-0.4.0.apk) and install it with ADB. Exit the original TRMNL app before launching Nook Casa.
+4. Download [nook-casa-0.4.1.apk](downloads/nook-casa-0.4.1.apk) and install it with ADB. Exit the original TRMNL app before launching Nook Casa.
 5. In the client, enter API Base URL `http://HOME_ASSISTANT_IP:8099/api`, the server's Device ID and the same local API key.
 6. Enable **Sleep between updates** and select the **TRMNL** screensaver in the original Nook settings. Verify a full sleep/wake cycle on the device.
 
-The public server **0.4.0** and client **0.4.0** use English interface text. Server 0.3.0 introduced configurable entities compared with the personal 0.2.2 server. Server and client version numbers are independent. [Configuration and entity mapping](docs/CONFIGURATION.md).
+The public server **0.4.1** and client **0.4.1** use English interface text. Server 0.3.0 introduced configurable entities compared with the personal 0.2.2 server. Server and client version numbers are independent. [Configuration and entity mapping](docs/CONFIGURATION.md).
 
 ## Security and command behavior
 

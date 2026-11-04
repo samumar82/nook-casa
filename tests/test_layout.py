@@ -22,5 +22,5 @@ for name in ('Paper','Plastic','Glass','Organic','Residual','Metal cans','Garden
     assert im.crop((450,630,578,715)).getextrema()[0]<50,name
 for state,expected in [('on',0),('off',255),('unavailable',255)]:
     im=Image.open(io.BytesIO(s.render({'force':state},now,60)))
-    assert im.getpixel((325,485))==expected,state
+    assert im.getpixel((425,485))==expected,state
 print('PASS: relative collection labels, active-cycle polling, weather/waste icons and ACS state fill')

@@ -16,7 +16,7 @@ Coordinates in the reference 600 × 800 PNG, scaled by the client to the display
 
 | Button | X | Y | Action |
 | --- | --- | --- | --- |
-| HEAT WATER | 318–576 | 477–528 | Confirm domestic hot water heating |
+| HEAT WATER | 416–576 | 474–532 | Confirm domestic hot water heating |
 | CHANGE | 438–576 | 569–603 | Enable or disable Holiday Mode |
 | REFRESH | 438–576 | 738–770 | Read current HA data and generate a new PNG |
 
@@ -29,3 +29,5 @@ python3 tests/test_server.py
 ```
 
 Buttons fill black immediately on touch. The server image keeps HEAT WATER black while the force-heating switch is on. The other two buttons return to their outlined appearance when the fresh image arrives.
+
+In 0.4.1 the saint line is slightly larger, Holiday Mode columns are centered, and the hot water button has a compact 160 × 58 frame. Install client 0.4.1 with this layout so its touch feedback uses the matching coordinates.

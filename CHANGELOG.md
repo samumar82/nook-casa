@@ -1,5 +1,11 @@
 # Changelog
 
+## Server and client 0.4.1
+
+- Center the Holiday Mode label and state within their columns.
+- Slightly enlarge the saint line.
+- Narrow the hot water button and move its touch and feedback region to match.
+
 ## Server and client 0.4.0
 
 - Replace the newspaper title with a larger bold date, saint and time header.

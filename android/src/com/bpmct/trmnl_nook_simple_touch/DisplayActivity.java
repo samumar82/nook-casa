@@ -311,7 +311,7 @@ public class DisplayActivity extends Activity {
                     if (casaPressed != null && !casaPressed.equals(released)) { casaClearPressed(); return true; }
                     if (x >= 438 && x <= 576 && y >= 738 && y <= 770) {
                         casaRequest("refresh");
-                    } else if (x >= 318 && x <= 576 && y >= 477 && y <= 528) {
+                    } else if (x >= 416 && x <= 576 && y >= 474 && y <= 532) {
                         new AlertDialog.Builder(DisplayActivity.this).setTitle("Heat Water")
                             .setMessage("Start domestic hot water heating?")
                             .setPositiveButton("Start", new DialogInterface.OnClickListener() {
@@ -1399,7 +1399,7 @@ public class DisplayActivity extends Activity {
 
     private static int[] casaButtonBounds(String action) {
         if ("refresh".equals(action)) return new int[]{438,738,576,770};
-        if ("force_dhw".equals(action)) return new int[]{318,477,576,528};
+        if ("force_dhw".equals(action)) return new int[]{416,474,576,532};
         if ("holiday".equals(action) || "holiday_on".equals(action) || "holiday_off".equals(action)) return new int[]{438,569,576,603};
         return null;
     }

@@ -67,7 +67,7 @@ Replace the Nook IP and APK path:
 
 ```powershell
 .\adb.exe connect NOOK_IP:5555
-.\adb.exe -s NOOK_IP:5555 install -r "C:\path\nook-casa-0.4.0.apk"
+.\adb.exe -s NOOK_IP:5555 install -r "C:\path\nook-casa-0.4.1.apk"
 .\adb.exe -s NOOK_IP:5555 shell am start -n it.samuele.nookcasa/.DisplayActivity
 ```
 
@@ -91,7 +91,7 @@ Wake the device before using touch controls and allow Wi-Fi to reconnect if nece
 
 For store installations, update the app through the UI and review its options. Update the client only when a new APK is released; server and client versions are independent.
 
-For local installations, back up `/addons/nook_casa` and the app options before replacing source files, then stop, rebuild and start the local slug. Older personal self-extracting update scripts are not this public repository's update channel.
+For local installations, back up `/addons/nook_casa` and the app options before replacing source files, then use `ha apps update local_nook_casa` and start the app when its version changes. Use rebuild only when the source changes without a version change. Older personal self-extracting update scripts are not this public repository's update channel.
 
 The included APK is signed. Updates for the same package must use the same signing key. A build signed with your own key may require uninstalling the distributed APK first, which removes its local preferences. The maintainer's private signing key is not published.
 
@@ -114,3 +114,5 @@ To return to the original client, choose **Exit** in Nook Casa and open TRMNL. R
 ## Upgrading to layout 0.4.0
 
 Update both the server and APK to 0.4.0 for touch feedback. The package and signing key are unchanged, so `adb install -r` preserves client preferences. Active forced hot water heating is checked every 60 seconds; this uses more battery during a cycle. The switch controls the visual active state; the app does not change the heating setpoint or terminate the cycle itself.
+
+Layout 0.4.1 also requires client 0.4.1: the hot water button is narrower and its touch region has moved to match the visible frame.
