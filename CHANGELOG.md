@@ -1,3 +1,17 @@
+# 0.10.0 — 17 novembre 2026
+
+- Dashboard orizzontale 800 × 600, trasmessa come PNG ruotato 600 × 800 al client Android 2.1 già esistente.
+- Mockup finale realmente generato dal renderer Pillow; colonna meteo, schede energia/batterie/PDC-ACS/rifiuti/Nook e notizie.
+- Agenda personale senza titolo/icona in alto; AQI e rischio allergeni.
+- Autonomia XPENG in km esclusivamente da sensore attendibile, senza conversioni stimate dal SOC.
+- Holiday Mode e stato ciclo ACS conservati **come testi informativi**, senza pulsanti touch.
+- Notizie ampliate con Protezione Civile e scioperi pertinenti al domicilio configurato; icone separate dal testo.
+- Intestazione notizie e footer eliminati; `LDP` spostato in alto a destra.
+- Sorgenti collector e renderer disponibili separatamente per manutenzione, oltre al server integrato.
+- La versione locale 0.6.0 è stata aggiornata con backup verificato; il server pubblico è una variante configurabile delle medesime funzionalità.
+
+---
+
 # 0.4.3 — 2026-11-04
 
 - Increase the saint header to 30 px and use the full available row.

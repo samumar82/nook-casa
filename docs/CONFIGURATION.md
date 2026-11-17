@@ -1,60 +1,45 @@
-# Configuration and data
+# Configurazione · Nook Casa 0.10.0
 
-Public server versions 0.3.0 and later expose entity IDs as app options, so you do not need to edit Python. Defaults are examples; your home's entities are not discovered automatically.
+Le impostazioni si gestiscono dalle opzioni dell'add-on Home Assistant. I nomi predefiniti sono esempi: sostituiscili con le entità della tua installazione.
 
-| Option | Data | Expected unit |
+| Opzione | Significato | Unità |
 | --- | --- | --- |
-| `entity_soc` | Home battery state of charge | % |
-| `entity_solar` | Cumulative solar generation today | kWh |
-| `entity_grid` | Grid energy imported today | kWh |
-| `entity_consumption` | Total home energy consumption today | kWh |
-| `entity_spanky` | EV battery charge, displayed as XPENG | % |
-| `entity_acs` | Current domestic hot water temperature | °C |
-| `entity_force` | Switch that starts forced hot water heating | on/off |
-| `entity_holiday` | Holiday Mode switch | on/off |
-| `entity_operation` | Heat pump operating state | text |
-| `entity_aqi` | Air quality index | numeric index |
-| `weather_entity` | Weather entity supporting daily forecasts | weather |
-| `waste_calendar` | Waste collection calendar | calendar |
+| `entity_soc` | Stato di carica batteria casa | % |
+| `entity_solar` | Produzione fotovoltaica odierna | kWh |
+| `entity_grid` | Prelievo dalla rete odierno | kWh |
+| `entity_consumption` | Consumo energetico domestico odierno | kWh |
+| `entity_spanky` | Batteria veicolo, mostrata come XPENG | % |
+| `entity_acs` | Temperatura accumulo ACS | °C |
+| `entity_force` | Stato comando ciclo forzato ACS, solo informativo sul display | on/off |
+| `entity_holiday` | Holiday Mode, solo informativo sul display | on/off |
+| `entity_operation` | Stato operazione PDC, es. Space heating | testo |
+| `entity_aqi` | Air quality index | numero |
+| `weather_entity` | Previsioni giornaliere | weather |
+| `waste_calendar` | Calendario prossimi ritiri | calendar |
+| `agenda_calendar` | Calendario dei prossimi appuntamenti personali | calendar |
+| `allergy_risk_entity` | Livello rischio allergeni (si tenta anche il rilevamento automatico di sensori polleninformation) | testo |
+| `ev_range_entity` | Sensore chilometri residui veicolo; facoltativo, rilevato automaticamente se univoco | km |
 
-`entity_spanky` and `entity_acs` are retained internal option names for compatibility. The visible labels are **XPENG** and **HOT WATER**. Entity IDs, API action names and the app package are identifiers, not interface translations; existing configured IDs remain unchanged.
+L'autonomia non è derivata dalla percentuale di batteria. Il sistema accetta soltanto sensori numerici in `km` con valore plausibile. Se non ne trova, visualizza `— km`.
 
-There is no automatic Wh-to-kWh conversion. Choose daily energy counters already expressed in kWh. Instantaneous power in W is not interchangeable with daily energy in kWh. AQI is shown numerically without assigning an arbitrary qualitative scale.
+## Allerte e scioperi
 
-The hot water and Holiday Mode commands are designed for switches with semantics equivalent to Ecodan Force DHW and Holiday Mode. Check their meaning before mapping different entities. Only the two configured switches accept commands, and the client asks for confirmation. Commands are rejected if the known state is neither on nor off.
+Per la Protezione Civile sono riconosciute le entità `sensor.dpc_today_alert`, `sensor.dpc_tomorrow_alert` e `sensor.dpc_alert_zone`; i livelli `yellow`, `orange`, `red` generano avvisi. `green` segnala assenza di allerta, mentre `unknown` non viene trasformato in un falso 'tutto bene'.
 
-## Refresh schedule
+Per gli scioperi locali, il collector usa `sensor.scioperi_vicini` e in alternativa `sensor.scioperi_prossimo_vicino`, filtrati per eventi nei prossimi cinque giorni. Sono dati forniti dalle integrazioni di Home Assistant, non una verifica diretta dei bollettini ufficiali.
 
-The normal server `refresh_rate` is:
+Il titolo di Ultimora deriva da una lettura pubblica del canale Telegram; in caso di rete non disponibile può essere mostrato l'ultimo contenuto con indicazione di dato non aggiornato.
 
-- 07:00 ≤ local time < 20:30: 900 seconds.
-- Otherwise: 7200 seconds.
-- When the next time-window boundary is closer, use the remaining time to that boundary.
+## Batteria Nook
 
-Intervals start at the latest contact; they are not necessarily aligned to quarter-hour clock times. Wake-up and Wi-Fi reconnection may add delay. The time zone is `Europe/Rome`, including daylight saving time. The legacy `refresh_seconds` option remains for compatibility but does not override this schedule.
+Ricevuta dall'header del client `Percent-Charged`. Non è necessario creare un sensore Home Assistant. La percentuale cambia quando il lettore contatta il server.
 
-## Saints and holidays
+## Aggiornamento orario
 
-Major Italian holidays are defined locally and displayed with English names. On other days the server tries to read an English saint name from Vatican News and caches the result in `/data/saint_cache_en.json`. If it cannot retrieve a name, it leaves the field empty. This may make one daily HTTPS request to Vatican News; no home states or API keys are sent.
+Europe/Rome: 15 minuti durante il giorno (07:00–20:30), 2 ore di notte. Un ciclo ACS attivo può ridurre temporaneamente l'intervallo di polling per preservare il comportamento esistente.
 
-The interface is English; the schedule and holiday calendar retain their original Italian regional settings. Home Assistant entity state strings and calendar event titles are displayed as provided by their source and are not automatically translated.
+## Privacy e sicurezza
 
-## Calendar
+Non salvare l'API key nelle screenshot o nei file pubblici. Usare la porta 8099 solo in LAN fidata. I nomi dei calendari e delle entità locali non vanno incorporati in screenshot con appuntamenti privati.
 
-The server searches the next 30 days, including today, and groups event titles on the first available collection date. Results depend on the source integration's event contents and timing.
-
-## Limitations
-
-The page is an image, not a Lovelace dashboard; it does not execute JavaScript on the Nook. Missing data appears as `--` or an unavailable message. Manual refresh invalidates the renderer cache but does not force HA integrations to fetch new upstream data. Command confirmation uses an immediate state read; integrations that update more slowly may yield an uncertain result even when the command arrived.
-
-## Nook battery
-
-The small percentage at the top right is the Nook battery, read from the client's `Percent-Charged` header at each refresh. It is independent of the home and EV batteries. Only integer values from 0 through 100 are accepted; missing or invalid values appear as `--`. No Home Assistant entity is needed. The percentage remains static while the Nook sleeps.
-
-## Active hot water cycle and button feedback
-
-The server caps the refresh interval at 60 seconds while the configured force-heating switch is `on`. It also uses a five-minute short-polling window after a heating request to handle integration delays. The HEAT WATER button is filled black only when the latest state is `on`; unavailable states do not claim an active cycle. After the switch turns off, the next refresh restores the outline and the normal schedule. Client 0.4.0 additionally shows immediate black touch feedback while a command or refresh is pending.
-
-## Waste labels and symbols
-
-Events on the current day, the next day or two days later use relative labels without a date. Later events use the weekday, day and month, without a year. Material icons are inferred from common English and Italian event-title keywords: paper/cardboard, plastic/packaging, glass, organic food waste, residual waste, metal cans and garden waste. Two recognized materials display two symbols; unknown or more complex mixtures use a generic bin. Event titles are still shown, so the icon is supplementary.
+La modalità 0.10.0 è **sola visualizzazione**: non sono disegnati pulsanti touch. La compatibilità server può mantenere endpoint di comando legacy, già protetti da autenticazione; per eliminarli occorre una modifica API separata.

@@ -1,7 +1,7 @@
 name: Nook Casa
-version: "0.4.3"
+version: "0.10.0"
 slug: nook_casa
-description: Local Nook Simple Touch e-ink dashboard with hot water and Holiday controls
+description: E-ink home dashboard in landscape layout; calendar, alerts, energy, weather, XPENG and waste
 arch: [amd64, aarch64]
 startup: application
 boot: auto
@@ -28,6 +28,9 @@ options:
   entity_spanky: "sensor.xpeng_battery"
   weather_entity: "weather.home"
   waste_calendar: "calendar.waste_collection"
+  agenda_calendar: "calendar.home"
+  allergy_risk_entity: "sensor.polleninformation_home_allergy_risk"
+  ev_range_entity: ""
 schema:
   public_url: url
   device_id: str
@@ -45,4 +48,7 @@ schema:
   entity_spanky: str
   weather_entity: str
   waste_calendar: str
+  agenda_calendar: str
+  allergy_risk_entity: str
+  ev_range_entity: str
 
