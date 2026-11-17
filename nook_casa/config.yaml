@@ -1,5 +1,5 @@
 name: Nook Casa
-version: "0.10.0"
+version: "0.10.1"
 slug: nook_casa
 description: E-ink home dashboard in landscape layout; calendar, alerts, energy, weather, XPENG and waste
 arch: [amd64, aarch64]
@@ -31,6 +31,8 @@ options:
   agenda_calendar: "calendar.home"
   allergy_risk_entity: "sensor.polleninformation_home_allergy_risk"
   ev_range_entity: ""
+  battery_day_charge_entity: "sensor.batteries_day_charge"
+  battery_day_discharge_entity: "sensor.batteries_day_discharge"
 schema:
   public_url: url
   device_id: str
@@ -51,4 +53,6 @@ schema:
   agenda_calendar: str
   allergy_risk_entity: str
   ev_range_entity: str
+  battery_day_charge_entity: str
+  battery_day_discharge_entity: str
 

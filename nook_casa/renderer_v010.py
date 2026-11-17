@@ -33,6 +33,8 @@ def _nook10_render(data, now, interval):
         while s and d.textlength(s+'…',font=f)>max_w: s=s[:-1]
         return s.rstrip(' .')+'…' if s else '—'
     def txt(x,y,s,sz=16,bold=False,max_w=780,color=INK):
+        # Font +1 px below the first two header lines; preserve original ink.
+        if y >= 87: sz += 1
         s=fit(s,sz,max_w,bold)
         d.text((x,y),s,font=F(sz,bold),fill=color)
     def right(x,y,s,sz=14,bold=False,color=INK):
@@ -111,6 +113,13 @@ def _nook10_render(data, now, interval):
         d.rounded_rectangle((x+3,y+19,x+51,y+32),radius=4,outline=INK,width=3)
         for xx in (x+14,x+41):d.ellipse((xx-5,y+27,xx+5,y+37),fill=255,outline=INK,width=3)
         d.line((x+20,y+12,x+15,y+19),fill=INK,width=2)
+    def ic_car_compact(x,y):
+        # Bounds 32x20: original ic_car ignores w/h and drew over SOC text.
+        d.line([(x+4,y+11),(x+9,y+5),(x+22,y+5),(x+28,y+11)],fill=INK,width=2)
+        d.rounded_rectangle((x+2,y+10,x+30,y+16),radius=2,outline=INK,width=2)
+        for cx in (x+9,x+24):
+            d.ellipse((cx-2,y+15,cx+2,y+19),fill=255,outline=INK,width=1)
+
     def ic_fan(x,y,s=39):
         cx,cy=x+s/2,y+s/2
         d.ellipse((x+1,y+1,x+s-1,y+s-1),outline=INK,width=2)
@@ -158,12 +167,13 @@ def _nook10_render(data, now, interval):
     right(784,16,'LDP '+now.strftime('%d/%m %H:%M'),12,False)
     if data.get('errors') or data.get('nook07_external_error'):
         right(784,42,'Dati parziali',10,False,color=SOFT)
-    txt(23,47,data.get('occasion') or '',17,False,740)
+    txt(23,47,data.get('occasion') or '',19,False,740)
 
     # Top card: next two personal appointments / AQI / local allergens.
     card((12,87,788,164))
-    vline(287,95,156,SOFT)
-    vline(479,95,156,SOFT)
+    # Agenda widened by 60 px; AQI retains its original 192 px width.
+    vline(347,95,156,SOFT)
+    vline(539,95,156,SOFT)
     agenda=data.get('nook07_agenda') or []
     if agenda:
         for k,item in enumerate(agenda[:2]):
@@ -172,24 +182,24 @@ def _nook10_render(data, now, interval):
             if not item.get('all_day'):when+=' '+date.strftime('%H:%M')
             # Keep time/date visible; title is ellipsized only when unavoidable.
             txt(27,100+k*28,when,15,True,108)
-            tw=d.textlength(when,font=F(15,True))
-            txt(27+tw+8,100+k*28,item['title'],15,False,max(12,247-tw))
+            tw=d.textlength(when,font=F(16,True))
+            txt(27+tw+8,100+k*28,item['title'],15,False,max(12,307-tw))
     elif data.get('nook07_agenda_error'):
-        txt(26,116,'Calendario non disponibile',15,False,252)
+        txt(26,116,'Calendario non disponibile',15,False,312)
     else:
-        txt(26,116,'Nessun impegno nei prossimi 7 giorni',14,False,252)
+        txt(26,116,'Nessun impegno nei prossimi 7 giorni',14,False,312)
 
-    ic_leaf(302,106,37)
-    txt(348,100,'AQI '+fmt(data.get('aqi')),22,True,122)
+    ic_leaf(362,106,37)
+    txt(408,100,'AQI '+fmt(data.get('aqi')),22,True,122)
     try:
         aqi=float(data.get('aqi'))
         aqi_label='Buona' if 0<=aqi<=50 else 'Moderata' if aqi<=100 else 'Elevata'
     except (ValueError,TypeError):aqi_label='Non disponibile'
-    txt(348,132,aqi_label,13,False,120)
-    ic_flower(498,107,37)
+    txt(408,132,aqi_label,13,False,120)
+    ic_flower(558,107,37)
     pollen=data.get('nook07_allergens') or '—'
-    txt(544,100,'Allergeni: '+str(pollen).capitalize(),18,True,230)
-    txt(544,132,data.get('nook10_allergen_place') or 'Casa',13,False,230)
+    txt(604,100,'Allergeni',18,True,175)
+    txt(604,128,str(pollen).capitalize(),17,False,175)
 
     forecasts={}
     for item in data.get('forecast') or []:
@@ -227,14 +237,30 @@ def _nook10_render(data, now, interval):
     txt(544,216,'Rete · kWh',12,False,100)
 
     vline(412,265,319,SOFT)
-    ic_battery(185,274,46,28,data.get('soc'))
-    txt(248,259,'Batteria casa',14,False,155)
-    txt(248,282,fmt(data.get('soc'))+'%',26,True,155)
-    ic_car(428,272,54,34)
-    txt(495,259,'XPENG',14,False,149)
-    txt(495,281,fmt(data.get('spanky'))+'%',26,True,146)
+    # Daily home battery throughput is expressed as energy (kWh), not power.
+    ic_battery(180,275,40,27,data.get('soc'))
+    txt(230,259,'Batteria casa',14,False,177)
+    txt(230,282,fmt(data.get('soc'))+'%',26,True,89)
+    charge_today=fmt(data.get('nook10_day_charge'),2)
+    discharge_today=fmt(data.get('nook10_day_discharge'),2)
+    txt(325,277,'↑ '+charge_today+' kWh',11,False,82)
+    txt(325,299,'↓ '+discharge_today+' kWh',11,False,82)
+    # Compact icon above two equally sized battery/range values.
+    ic_car_compact(426,257)
+    txt(465,258,'XPENG',14,False,149)
+    xpeng_pct=fmt(data.get('spanky'))+'%'
     range_km=data.get('nook09_ev_range')
-    txt(495,306,(fmt(range_km)+' km' if valid(range_km) else '— km'),14,False,144)
+    xpeng_km=(fmt(range_km)+' km' if valid(range_km) else '— km')
+    ev_x,ev_right,ev_size=424,650,26
+    while ev_size>19:
+        face=F(ev_size+1,True)
+        needed=d.textlength(xpeng_pct,font=face)+10+d.textlength(xpeng_km,font=face)
+        if needed<=ev_right-ev_x-2: break
+        ev_size-=1
+    face=F(ev_size+1,True)
+    ev_km_x=round(ev_x+d.textlength(xpeng_pct,font=face)+10)
+    txt(ev_x,283,xpeng_pct,ev_size,True,ev_km_x-ev_x-7)
+    txt(ev_km_x,283,xpeng_km,ev_size,True,max(10,ev_right-ev_km_x))
 
     vline(473,346,416,SOFT)
     ic_fan(179,351,37)
@@ -255,18 +281,19 @@ def _nook10_render(data, now, interval):
     ic_waste(673,183,34)
     txt(708,184,'Rifiuti',18,True,68)
     hline(672,220,777,SOFT)
-    txt(674,227,'Prossimo ritiro',12,False,103)
     raw=str(data.get('waste_name') or 'Non disponibile')
     pieces=raw.split()
     name_lines=[];cur=''
     for word in pieces:
         test=(cur+' '+word).strip()
-        if d.textlength(test,font=F(16,True)) <= 101:cur=test
+        if d.textlength(test,font=F(19,True)) <= 101:cur=test
         else:
             if cur:name_lines.append(cur)
             cur=word
     if cur:name_lines.append(cur)
-    for j,part in enumerate(name_lines[:2]):txt(674,244+j*20,part,16,True,101)
+    waste_name_y=238 if len(name_lines)>1 else 249
+    for j,part in enumerate(name_lines[:2]):
+        txt(674,waste_name_y+j*22,part,18,True,101)
     waste_date=str(data.get('waste_date') or '—')
     for full,abbr in (('lunedì','Lun'),('martedì','Mar'),('mercoledì','Mer'),('giovedì','Gio'),('venerdì','Ven'),('sabato','Sab'),('domenica','Dom')):
         if waste_date.lower().startswith(full):
@@ -274,7 +301,7 @@ def _nook10_render(data, now, interval):
             break
     for full,abbr in (('gennaio','gen'),('febbraio','feb'),('marzo','mar'),('aprile','apr'),('maggio','mag'),('giugno','giu'),('luglio','lug'),('agosto','ago'),('settembre','set'),('ottobre','ott'),('novembre','nov'),('dicembre','dic')):
         waste_date=waste_date.replace(full,abbr)
-    txt(674,295,waste_date,13,True,101)
+    txt(674,291,waste_date,15,True,101)
 
     # Nook side panel — no dead touch controls.
     ic_nook(672,351,28,43)
@@ -312,7 +339,7 @@ def _nook10_render(data, now, interval):
     remaining=plain
     for i in range(news_lines_needed):
         if not remaining:break
-        face=F(17,False); available=708
+        face=F(18,False); available=708
         if d.textlength(remaining,font=face)<=available:
             portion=remaining; remaining=''
         else:
@@ -322,10 +349,10 @@ def _nook10_render(data, now, interval):
                 candidate=' '.join(selected+[word])
                 if d.textlength(candidate,font=face)<=available:selected.append(word)
                 else:break
-            portion=' '.join(selected) if selected else fit(remaining,16,available)
+            portion=' '.join(selected) if selected else fit(remaining,17,available)
             remaining=remaining[len(portion):].lstrip()
         if i == news_lines_needed-1 and remaining:
-            portion=fit(portion.rstrip('…')+'…',17,available)
+            portion=fit(portion.rstrip('…')+'…',18,available)
         rows.append(('news' if i==0 else 'continuation', portion))
 
     for index,(kind,content) in enumerate(rows[:5]):

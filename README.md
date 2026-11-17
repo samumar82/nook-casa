@@ -1,22 +1,22 @@
 # Nook Casa · Home Assistant e-ink dashboard
 
-**Versione 0.10.0 · Interfaccia orizzontale, sola visualizzazione.**
+**Versione 0.10.1 · Interfaccia orizzontale, sola visualizzazione.**
 
 Nook Casa trasforma un Barnes & Noble Nook Simple Touch BNRV300 (Wi-Fi, Android 2.1, 600 × 800) in un pannello informativo collegato a Home Assistant. La versione 0.10.0 utilizza una **dashboard orizzontale 800 × 600** con sole informazioni: il touch non è necessario.
 
 ![Anteprima finale Nook Casa 0.10.0](docs/images/mockup-landscape-v010.png)
 
-*Anteprima prodotta dal renderer Pillow, con valori dimostrativi; non è una cattura di sensori reali.*
+*L'immagine PNG illustra il layout di base 0.10.0; le rifiniture 0.10.1 (agenda, allergeni, XPENG, batteria domestica e rifiuti) sono documentate in [MOCKUP.md](docs/MOCKUP.md). Non è una cattura di sensori reali.*
 
 ## Cosa mostra
 
 - Data con iniziale maiuscola, santo del giorno e `LDP gg/mm hh:mm` nell'angolo superiore destro.
-- Due prossimi appuntamenti del calendario personale, senza titolo o icona superflui.
-- Previsioni meteo di oggi e dei tre giorni successivi, AQI e livello di allergeni.
+- Due prossimi appuntamenti del calendario personale, con riquadro ampliato e AQI della stessa larghezza.
+- Previsioni meteo di oggi e dei tre giorni successivi, AQI e livello allergeni su due righe (senza località).
 - Produzione fotovoltaica, consumo di casa e prelievo dalla rete (kWh di oggi).
-- Percentuale della batteria domestica e della XPENG, con autonomia residua in km **solo se esiste un sensore valido**.
+- Batteria casa con percentuale SOC e **kWh caricati/scaricati oggi**; percentuale XPENG e autonomia residua in km affiancate, se il sensore è valido.
 - Stato operativo PDC, temperatura ACS, Holiday Mode e ciclo forzato ACS, tutti **senza pulsanti**.
-- Prossimo ritiro SAVNO/rifiuti, materiale e data.
+- Rifiuti: materiale e data con font più grandi, senza la scritta «Prossimo ritiro».
 - Percentuale della batteria Nook.
 - Una sezione notizie senza intestazione, con priorità alle allerte locali di Protezione Civile e agli scioperi pertinenti, poi Ultimora. L'allerta verde non viene rappresentata come emergenza.
 
@@ -63,3 +63,5 @@ La porta 8099 è pensata per una rete locale attendibile. HTTP non cifra la chia
 ## Licenza
 
 MIT; attribuzioni, provenienza del client e avvisi di terze parti in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Progetto indipendente da Barnes & Noble, TRMNL, Home Assistant, Mitsubishi Electric e XPENG.
+
+> **Installazione esistente:** la 0.10.0 locale già funzionante non viene modificata da questa pubblicazione GitHub. La 0.10.1 è un aggiornamento pubblico distinto; prima di installarla in Home Assistant, conservare un backup della versione personalizzata.

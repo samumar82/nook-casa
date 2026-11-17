@@ -17,6 +17,7 @@ sample={
     'nook07_alerts':[('SCIOPERI','Sciopero 20/11: ferrovie e TPL (nazionale)')],
     'nook08_dpc_today':'green',
     'nook09_ev_range':410,
+    'nook10_day_charge':0.02, 'nook10_day_discharge':0.27,
     'soc':'76','solar':'4.5','grid':'1.1','consumption':'9.8',
     'spanky':'83','acs':'45.5','force':'off','holiday':'off',
     'operation':'Space heating','nook_battery':87,
@@ -41,6 +42,12 @@ for state in ('full','partial','long'):
     assert im.getextrema()[0]<40
     visual=im.rotate(-90,expand=True)
     assert visual.size==(800,600)
+# Verify the energy readouts are rendered in the home-battery half of the card.
+with_energy=s.render(sample,now,900)
+without_energy=s.render(dict(sample,nook10_day_charge=None,nook10_day_discharge=None),now,900)
+shown=Image.open(io.BytesIO(with_energy)).rotate(-90,expand=True)
+hidden=Image.open(io.BytesIO(without_energy)).rotate(-90,expand=True)
+assert shown.crop((323,276,408,324)).tobytes() != hidden.crop((323,276,408,324)).tobytes()
 assert s.collection_label(now.date()+timedelta(days=1), now.date())=='Domani'
 assert s.refresh_interval(now)==900
 print('PASS: landscape 800x600 content, legacy PNG 600x800, alerts, empty data, long text and schedule')

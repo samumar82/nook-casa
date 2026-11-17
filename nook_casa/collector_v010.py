@@ -26,12 +26,31 @@ def _nook07_collect(self, now, _previous):
     data['nook08_dpc_today'] = 'unknown'
     data['nook09_ev_range'] = None
     data['nook09_range_entity'] = None
+    data['nook10_day_charge'] = None
+    data['nook10_day_discharge'] = None
     data['nook07_external_error'] = False
 
     # HA sensors are already scoped to home: do not infer alerts from national DPC counts.
     try:
         all_states = self.ha('/states')
         by_id = {s['entity_id']: s for s in all_states if 'entity_id' in s}
+
+        # Daily home battery throughput, never instantaneous W or lifetime totals.
+        for key, opt, default in (
+            ('nook10_day_charge', 'battery_day_charge_entity', 'sensor.batteries_day_charge'),
+            ('nook10_day_discharge', 'battery_day_discharge_entity', 'sensor.batteries_day_discharge'),
+        ):
+            entity_id = str(getattr(self, 'options', {}).get(opt) or default).strip()
+            sensor = by_id.get(entity_id) or {}
+            unit = str((sensor.get('attributes') or {}).get('unit_of_measurement') or '').lower()
+            if unit != 'kwh':
+                continue
+            try:
+                amount = float(sensor.get('state'))
+                if math.isfinite(amount) and amount >= 0:
+                    data[key] = amount
+            except (TypeError, ValueError):
+                pass
         def state(eid):
             return by_id.get(eid, {})
         def valid(s):
