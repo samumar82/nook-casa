@@ -1,0 +1,25 @@
+name: Nook Casa 0.10 checks
+
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  renderer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install Pillow==11.3.0 tzdata
+      - name: Compile server and modules
+        run: |
+          python -m py_compile nook_casa/server.py nook_casa/collector_v010.py nook_casa/renderer_v010.py
+      - name: Test landscape layout and missing-data cases
+        run: python tests/test_v010.py
