@@ -4,9 +4,9 @@
 
 Nook Casa trasforma un Barnes & Noble Nook Simple Touch BNRV300 (Wi-Fi, Android 2.1, 600 × 800) in un pannello informativo collegato a Home Assistant. La versione 0.10.0 utilizza una **dashboard orizzontale 800 × 600** con sole informazioni: il touch non è necessario.
 
-![Anteprima finale Nook Casa 0.10.0](docs/images/mockup-landscape-v010.png)
+![Anteprima aggiornata Nook Casa 0.10.1](docs/images/mockup-landscape-v0101.png)
 
-*L'immagine PNG illustra il layout di base 0.10.0; le rifiniture 0.10.1 (agenda, allergeni, XPENG, batteria domestica e rifiuti) sono documentate in [MOCKUP.md](docs/MOCKUP.md). Non è una cattura di sensori reali.*
+*Mockup 800 × 600 rigenerato dal renderer Pillow della 0.10.1 con valori dimostrativi, senza dati personali. [Dettagli](docs/MOCKUP.md).*
 
 ## Cosa mostra
 

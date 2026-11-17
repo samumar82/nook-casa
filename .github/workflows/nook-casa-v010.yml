@@ -10,7 +10,7 @@ jobs:
   renderer:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -23,3 +23,16 @@ jobs:
           python -m py_compile nook_casa/server.py nook_casa/collector_v010.py nook_casa/renderer_v010.py
       - name: Test landscape layout and missing-data cases
         run: python tests/test_v010.py
+
+      - name: Generate 0.10.1 demo PNG with the real renderer
+        run: python tests/generate_mockup_v0101.py
+      - name: Commit mockup to the release branch
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/images/mockup-landscape-v0101.png
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: generate official 0.10.1 Nook mockup"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

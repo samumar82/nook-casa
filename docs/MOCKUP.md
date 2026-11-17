@@ -1,8 +1,8 @@
 # Mockup e geometria: Nook Casa 0.10.1 orizzontale
 
-![Nook Casa 0.10.0 · 800×600](images/mockup-landscape-v010.png)
+![Nook Casa 0.10.1 · 800×600](images/mockup-landscape-v0101.png)
 
-**Nota sulle versioni:** il PNG qui sopra è stato generato dal renderer della prima 0.10.0; non riproduce ancora le rifiniture successive della 0.10.1. I dettagli qui sotto descrivono il layout aggiornato. Questa immagine di base è stata generata da Python/Pillow con dati dimostrativi. La pagina logica misura 800 × 600 pixel; il server ruota il PNG a 600 × 800 prima di inviarlo al client Android esistente.
+Questa immagine è generata automaticamente dal renderer **0.10.1** con valori fittizi. Include agenda allargata, AQI invariato, allergeni su due righe, percentuale XPENG e km affiancati, kWh di carica/scarica della batteria casa e rifiuti più leggibili. La pagina logica misura 800 × 600 pixel; il server ruota il PNG a 600 × 800 prima di inviarlo al client Android esistente.
 
 ## Disposizione della pagina
 
@@ -19,4 +19,4 @@ Il Nook BNRV300 dispone di uno schermo fisico 600 × 800. Si posiziona **orizzon
 
 ## Versioni precedenti
 
-I mockup `mockup.png` e `mockup-it.png` illustrano l'interfaccia legacy verticale con pulsanti e sono conservati soltanto per riferimento storico. Il file **mockup-landscape-v010.png** documenta la schermata di base; le modifiche 0.10.1 sono descritte qui e implementate nel renderer. Per una nuova immagine fedele usare il renderer Python del sorgente aggiornato.
+I mockup `mockup.png` e `mockup-it.png` illustrano l'interfaccia legacy verticale con pulsanti e sono conservati soltanto per riferimento storico. Il file **mockup-landscape-v010.png** documenta la schermata originale 0.10.0; **mockup-landscape-v0101.png** è l'immagine aggiornata. Per rigenerarla eseguire `python tests/generate_mockup_v0101.py` dalla radice del repository.
