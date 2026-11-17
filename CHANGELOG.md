@@ -1,3 +1,14 @@
+# 0.10.1 — 17 novembre 2026
+
+- Sincronizzate le rifiniture del layout già adottate nell'installazione locale: testo interno +1 px senza ispessimento, santo +2 px, agenda più larga e allergeni con stato su seconda riga (senza località), AQI della stessa larghezza.
+- XPENG: chilometraggio e SOC con uguale dimensione su un'unica riga; icona auto compatta senza sovrapposizioni.
+- Rifiuti: rimosso il sottotitolo superfluo, aumentati di 2 px materiale e data.
+- Batteria casa: energia caricata/scaricata **oggi** in kWh dai sensori configurabili `battery_day_charge_entity` e `battery_day_discharge_entity`; valori indisponibili mostrati come trattino.
+- Aggiornati server integrato, moduli sorgente separati, test e documentazione. L'immagine PNG esistente rimane un mockup della prima 0.10.0.
+- La 0.10.1 viene pubblicata sul repository; la 0.10.0 installata su Home Assistant non viene modificata automaticamente.
+
+---
+
 # 0.10.0 — 17 novembre 2026
 
 - Dashboard orizzontale 800 × 600, trasmessa come PNG ruotato 600 × 800 al client Android 2.1 già esistente.

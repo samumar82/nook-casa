@@ -1,10 +1,12 @@
-# Configurazione · Nook Casa 0.10.0
+# Configurazione · Nook Casa 0.10.1
 
 Le impostazioni si gestiscono dalle opzioni dell'add-on Home Assistant. I nomi predefiniti sono esempi: sostituiscili con le entità della tua installazione.
 
 | Opzione | Significato | Unità |
 | --- | --- | --- |
 | `entity_soc` | Stato di carica batteria casa | % |
+| `battery_day_charge_entity` | Energia caricata nella batteria **oggi** (predefinito `sensor.batteries_day_charge`) | kWh |
+| `battery_day_discharge_entity` | Energia scaricata dalla batteria **oggi** (predefinito `sensor.batteries_day_discharge`) | kWh |
 | `entity_solar` | Produzione fotovoltaica odierna | kWh |
 | `entity_grid` | Prelievo dalla rete odierno | kWh |
 | `entity_consumption` | Consumo energetico domestico odierno | kWh |
@@ -19,6 +21,8 @@ Le impostazioni si gestiscono dalle opzioni dell'add-on Home Assistant. I nomi p
 | `agenda_calendar` | Calendario dei prossimi appuntamenti personali | calendar |
 | `allergy_risk_entity` | Livello rischio allergeni (si tenta anche il rilevamento automatico di sensori polleninformation) | testo |
 | `ev_range_entity` | Sensore chilometri residui veicolo; facoltativo, rilevato automaticamente se univoco | km |
+
+I due valori della batteria sono **energia giornaliera in kWh**, non potenza istantanea in W e non contatori totali. Se il sensore non è numerico o non ha unità `kWh`, la schermata mostra `—`.
 
 L'autonomia non è derivata dalla percentuale di batteria. Il sistema accetta soltanto sensori numerici in `km` con valore plausibile. Se non ne trova, visualizza `— km`.
 
